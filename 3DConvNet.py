@@ -101,16 +101,16 @@ def model3D(img=(48,240,240)):
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=1, output_shape=img, kernel_size=(3,3,3), stride=(2,2,2), padding='SAME'))
-        seq.add(Sigmoid())
+        seq.add(Softmax())
     return seq
         
 
 if __name__ == '__main__':
 
     learning_rate = 0.001
-    batchsize = 1
+    batchsize = 2
 
-    max_epoch = 10
+    max_epoch = 300
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -139,14 +139,13 @@ if __name__ == '__main__':
     print("train_fprop")
     y_test_sb = seq.test_fprop(X_ph)
     print("test_fprop")
+
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     train_cost_sb = entropy(y_ph, y_train_sb)
-    print("entropy1")
+
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
-    print("entropy2")
     test_accu_sb = accuracy(y_ph, y_test_sb)
-    print("entropy3")
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
     print("OPTIMIZER")
     gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
@@ -159,6 +158,10 @@ if __name__ == '__main__':
         
         batchsize = 1
         dataX, dataY = dataset.NextBatch3D(20) # Take everything
+        #######
+        # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
+        # dataY[dataY ==2] = 0
+        #######
         print("retreive data from HDD")
         X_train = dataX[:15]
         X_test = dataX[15:]
@@ -167,8 +170,6 @@ if __name__ == '__main__':
         #X_train, y_train, X_test, y_test = Mnist(flatten=False, onehot=True, binary=True, datadir='.')
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
-
-
 
         best_valid_accu = 0
         for epoch in range(max_epoch):

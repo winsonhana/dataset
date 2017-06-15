@@ -75,6 +75,7 @@ class WMHdataset():
             return False
     
     def InitDataset(self,split=1.0):
+        assert self.AbleToRetrieveData(), "not able to retrieve data from path."
         for i in self.institute:
             path_ = os.path.join(self.filepath,i)
             listDir = os.listdir(path_)
@@ -84,7 +85,8 @@ class WMHdataset():
         sampleIndex = np.random.choice(range(length_),int(np.round(length_*split)),False)
         self.listTrain = [self.listFolder[i] for i in sampleIndex]
         self.listValid = [self.listFolder[i] for i in range(length_) if i not in sampleIndex]
-    
+
+
     def nextBatch(self,batchSize,dataset='train'):
         if dataset == 'train':
             dataFolder = self.listTrain
@@ -150,9 +152,9 @@ class WMHdataset():
    
    
      
-#DLpath2 = '/Users/winsoncws/Hana/dataset/' 
-#D = WMHdataset(DLpath2)
-##D.InitDataset()
+DLpath2 = '/Users/winsoncws/Hana/WMH/' 
+D = WMHdataset(DLpath2)
+#D.InitDataset()
 
 #dataX , dataY = D.NextBatch3D(8)    
 
