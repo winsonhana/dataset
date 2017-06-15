@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 Created on Tue Jun 13 10:05:31 2017
 
@@ -12,15 +12,16 @@ import nibabel as nib
 import numpy as np
 
 
-#%%
+
 #DLpath = '/Users/winsoncws/Downloads'
 ########################################
 ######### USING SITK PACKAGE ###########
 ########################################
-
-#T1sitk = sitk.ReadImage(DLpath+'/0/pre/T1.nii.gz')
+#
+#T1sitk = sitk.ReadImage('./dataset/Utrecht/0/pre/T1.nii.gz')
 #T1sitk = sitk.GetArrayFromImage(T1sitk)
 #plt.imshow(T1sitk[20,:,:])
+
 
 def showScanImage(path,index, cmap_='CMRmap'):
     imgT1 = sitk.GetArrayFromImage(sitk.ReadImage(path+'/pre/T1.nii.gz'))
@@ -48,7 +49,7 @@ def showScanImage(path,index, cmap_='CMRmap'):
 
 
 ####### Iterating 3D Scanning Data ########
-#%%
+
 class WMHdataset():
     
     #institute = ['Utrecht','Singapore','GE3T']
@@ -73,7 +74,7 @@ class WMHdataset():
         else: 
             return False
     
-    def InitDataset(self,split=0.9):
+    def InitDataset(self,split=1.0):
         for i in self.institute:
             path_ = os.path.join(self.filepath,i)
             listDir = os.listdir(path_)
@@ -95,7 +96,9 @@ class WMHdataset():
         batchEnd = batchIndex + batchSize
         start_ = np.mod(batchIndex,length)
         end_ = np.mod(batchEnd,length)
-        if end_ < (start_):
+        if batchSize == length:
+            batchPath_ = dataFolder
+        elif end_ < (start_):
             batchPath_ = dataFolder[start_:]+dataFolder[:(end_)]
         else:
             batchPath_ = dataFolder[start_:end_]
@@ -116,8 +119,11 @@ class WMHdataset():
         fullPathsFlair_ = [os.path.join(self.filepath,i,subfolder,'FLAIR.nii.gz') for i in batchPath_]
         # fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
+        
         dataX_ = [sitk.GetArrayFromImage(sitk.ReadImage(i)) for i in fullPathsFlair_]
+        dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
         dataY_ = [sitk.GetArrayFromImage(sitk.ReadImage(i)) for i in fullPathsWMH_]
+        dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
         return dataX_, dataY_
         
     def showImages(self,scan=13,slice=13, cmap_='CMRmap'):
@@ -143,19 +149,17 @@ class WMHdataset():
         plt.tight_layout()
    
    
-#%%      
-#DLpath2 = '/Users/winsoncws/Downloads/WMH/' 
+     
+#DLpath2 = '/Users/winsoncws/Hana/dataset/' 
 #D = WMHdataset(DLpath2)
-#D.InitDataset()
+##D.InitDataset()
 
-#%%
 #dataX , dataY = D.NextBatch3D(8)    
 
-    
-#%%
+
 
     
-#%%
+
 #############################################
 ########## USING NIBABEL PACKAGE ############
 #############################################
@@ -185,4 +189,3 @@ class WMHdataset():
 #
 #DLpath = '/Users/winsoncws/Downloads'
 #showScanImage(DLpath+'/0',20,'CMRmap')   
-#%%
