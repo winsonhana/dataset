@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     seq = model3D()
     print("MODEL INIT")
-    dataset = WMH_loadData.WMHdataset('./dataset')
+    dataset = WMH_loadData.WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(split=1.0)         # Take everything
 #    dataX, dataY = dataset.NextBatch3D(20) # Take everything
