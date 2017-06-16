@@ -15,7 +15,7 @@ import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy
 from math import ceil
-import WMH_loadData  # 3D MRI Scanned Dataset
+from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
 
 
 class Conv3D_Tranpose1():
@@ -88,15 +88,15 @@ def model3D(img=(48,240,240)):
         poolStride = (2,2,2)
         #poolStride = (1,1,1)
         seq.add(Conv3D(input_channels=1, num_filters=8, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
-        #seq.add(TFBatchNormalization(name='b1'))
+        seq.add(TFBatchNormalization(name='b1'))
         seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
         layerSize1 = updateConvLayerSize(img,poolStride)
-        print("layer1: "+str(layerSize1))
+        #print("layer1: "+str(layerSize1))
         seq.add(RELU())
         seq.add(Conv3D(input_channels=8, num_filters=16, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
-        #seq.add(TFBatchNormalization(name='b2'))
-        layerSize2 = updateConvLayerSize(layerSize1,convStride)
-        print("layer1: "+str(layerSize2))
+        seq.add(TFBatchNormalization(name='b2'))
+        #layerSize2 = updateConvLayerSize(layerSize1,convStride)
+        #print("layer1: "+str(layerSize2))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(RELU())
@@ -117,24 +117,13 @@ if __name__ == '__main__':
 
 
     seq = model3D()
-    print("MODEL INIT")
-    dataset = WMH_loadData.WMHdataset('./WMH')
+    dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
-    dataset.InitDataset(split=1.0)         # Take everything
-#    dataX, dataY = dataset.NextBatch3D(20) # Take everything
-#    X_train = dataX[:15]
-#    X_test = dataX[15:]
-#    y_train = dataY[:15]
-#    y_test = dataY[15:]
-#    #X_train, y_train, X_test, y_test = Mnist(flatten=False, onehot=True, binary=True, datadir='.')
-#    iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
-#    iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
-
+    dataset.InitDataset(split=1.0)         # Take everything 100%
 
     X_ph = tf.placeholder('float32', [None, 48,240,240,1])
     y_ph = tf.placeholder('float32', [None, 48,240,240,1])
-    print("PLACEHOLDER")
-
+    
     y_train_sb = seq.train_fprop(X_ph)
     print("train_fprop")
     y_test_sb = seq.test_fprop(X_ph)
@@ -147,26 +136,26 @@ if __name__ == '__main__':
     test_cost_sb = entropy(y_ph, y_test_sb)
     test_accu_sb = accuracy(y_ph, y_test_sb)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
-    print("OPTIMIZER")
     gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     
     with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
         init = tf.global_variables_initializer()
-        print("VAR INIT")
         sess.run(init)
-        print("SESSION INIT")
+        print("INITIALIZE SESSION")
         
-        batchsize = 1
-        dataX, dataY = dataset.NextBatch3D(20) # Take everything
+        batchsize = 5
+#        dataX, dataY = dataset.NextBatch3D(len(dataset.listTrain)) # Take everything
+        dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        print("retreive data from HDD")
-        X_train = dataX[:15]
-        X_test = dataX[15:]
-        y_train = dataY[:15]
-        y_test = dataY[15:]
+        print("retreived data from HDD")
+        split = 45
+        X_train = dataX[:split]
+        X_test = dataX[split:]
+        y_train = dataY[:split]
+        y_test = dataY[split:]
         #X_train, y_train, X_test, y_test = Mnist(flatten=False, onehot=True, binary=True, datadir='.')
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)

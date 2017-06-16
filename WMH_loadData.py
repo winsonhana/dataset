@@ -52,8 +52,8 @@ def showScanImage(path,index, cmap_='CMRmap'):
 
 class WMHdataset():
     
-    #institute = ['Utrecht','Singapore','GE3T']
-    institute = ['Utrecht']
+    institute = ['Utrecht','Singapore','GE3T']
+    #institute = ['Utrecht']
     trainIndex = 0
     validIndex = 0
     listFolder = []
@@ -115,18 +115,30 @@ class WMHdataset():
         print('dimension for all FLAIR Images')        
         for i in fullPathsFlair_:
             print(sitk.GetArrayFromImage(sitk.ReadImage(i)).shape)
+
+        
+    def padding(self,x,dim=(83,256,240)):
+        dataShape = x.shape
+        d1 = int(np.ceil((dim[0]-dataShape[0])/2.0))
+        d2 = int(np.floor((dim[0]-dataShape[0])/2.0))
+        w1 = int(np.ceil((dim[1]-dataShape[1])/2.0))
+        w2 = int(np.floor((dim[1]-dataShape[1])/2.0))
+        h1 = int(np.ceil((dim[2]-dataShape[2])/2.0))
+        h2 = int(np.floor((dim[2]-dataShape[2])/2.0))
+        return np.pad(x,[[d1,d2],[w1,w2],[h1,h2]],'constant')
             
     def NextBatch3D(self,batchSize,dataset='train',subfolder='pre'):
         batchPath_ = self.nextBatch(batchSize,dataset)
         fullPathsFlair_ = [os.path.join(self.filepath,i,subfolder,'FLAIR.nii.gz') for i in batchPath_]
         # fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
-        
-        dataX_ = [sitk.GetArrayFromImage(sitk.ReadImage(i)) for i in fullPathsFlair_]
+        print('fetching rawdata from drive')
+        dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsFlair_]
         dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
-        dataY_ = [sitk.GetArrayFromImage(sitk.ReadImage(i)) for i in fullPathsWMH_]
+        dataY_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
         dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
         return dataX_, dataY_
+
         
     def showImages(self,scan=13,slice=13, cmap_='CMRmap'):
         path_ = self.listFolder[scan]
@@ -151,16 +163,28 @@ class WMHdataset():
         plt.tight_layout()
    
    
-     
-DLpath2 = '/Users/winsoncws/Hana/WMH/' 
-D = WMHdataset(DLpath2)
+#     
+#DLpath2 = '/Users/winsoncws/Hana/WMH/' 
+#D = WMHdataset(DLpath2)
 #D.InitDataset()
 
-#dataX , dataY = D.NextBatch3D(8)    
+#dataX , dataY = D.NextBatch3D(2)    
+#maxX = 0
+#for i in dataY:
+#    if maxX < i.max():
+#        maxX = i.max()
+## return 3180  
+#minX = 0
+#for i in dataY:
+#    if minX > i.max():
+#        minX = i.max()
+# return 0
 
+# Utrecht   (48, 240, 240, 1)
+# Singapore (48, 256, 232, 1)
+# Amsterdam (83, 256, 132, 1)
+# MAX (83,256,240,1)
 
-
-    
 
 #############################################
 ########## USING NIBABEL PACKAGE ############
