@@ -117,7 +117,7 @@ class WMHdataset():
             print(sitk.GetArrayFromImage(sitk.ReadImage(i)).shape)
 
         
-    def padding(self,x,dim=(83,256,240)):
+    def padding(self,x,dim=(83,256,256)):
         dataShape = x.shape
         d1 = int(np.ceil((dim[0]-dataShape[0])/2.0))
         d2 = int(np.floor((dim[0]-dataShape[0])/2.0))
@@ -133,10 +133,11 @@ class WMHdataset():
         # fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
         print('fetching rawdata from drive')
-        dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsFlair_]
+        dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/3180 for i in fullPathsFlair_]
         dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
         dataY_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
         dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
+        print('retrieved rawdata from drive')
         return dataX_, dataY_
 
         
@@ -163,12 +164,12 @@ class WMHdataset():
         plt.tight_layout()
    
    
-#     
-#DLpath2 = '/Users/winsoncws/Hana/WMH/' 
-#D = WMHdataset(DLpath2)
-#D.InitDataset()
+     
+DLpath2 = '/Users/winsoncws/Hana/WMH/' 
+D = WMHdataset(DLpath2)
+D.InitDataset()
 
-#dataX , dataY = D.NextBatch3D(2)    
+dataX , dataY = D.NextBatch3D(50)    
 #maxX = 0
 #for i in dataY:
 #    if maxX < i.max():
