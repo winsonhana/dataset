@@ -73,10 +73,9 @@ if __name__ == '__main__':
     y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
     
     y_train_sb = seq.train_fprop(X_ph)
-    print("train_fprop")
     y_test_sb = seq.test_fprop(X_ph)
-    print("test_fprop")
 
+    #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     train_cost_sb = entropy(y_ph, y_train_sb)
 
@@ -85,14 +84,13 @@ if __name__ == '__main__':
     #test_accu_sb = accuracy(y_ph, y_test_sb)
     test_accu_sb = smooth_iou(y_ph, y_test_sb)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
-    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     
+    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         print("INITIALIZE SESSION")
         
-#        dataX, dataY = dataset.NextBatch3D(len(dataset.listTrain)) # Take everything
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0

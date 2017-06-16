@@ -132,6 +132,7 @@ class WMHdataset():
         fullPathsFlair_ = [os.path.join(self.filepath,i,subfolder,'FLAIR.nii.gz') for i in batchPath_]
         # fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
+        
         print('fetching rawdata from drive')
         dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/3180 for i in fullPathsFlair_]
         dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
@@ -165,11 +166,11 @@ class WMHdataset():
    
    
      
-DLpath2 = '/Users/winsoncws/Hana/WMH/' 
-D = WMHdataset(DLpath2)
-D.InitDataset()
-
-dataX , dataY = D.NextBatch3D(50)    
+#DLpath2 = '/Users/winsoncws/Hana/WMH/' 
+#D = WMHdataset(DLpath2)
+#D.InitDataset()
+#
+#dataX , dataY = D.NextBatch3D(50)    
 #maxX = 0
 #for i in dataY:
 #    if maxX < i.max():
