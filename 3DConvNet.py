@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     learning_rate = 0.001
     batchsize = 2
-    split = 1 # Train Valid Split
+    split = 45 # Train Valid Split
     
     max_epoch = 300
     es = tg.EarlyStopper(max_epoch=max_epoch,
@@ -101,7 +101,7 @@ if __name__ == '__main__':
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
-        # dataY[dataY ==2] = 0
+        dataY[dataY ==2] = 0
         #######
         X_train = dataX[:split]
         X_test = dataX[split:]

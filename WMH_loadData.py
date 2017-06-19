@@ -82,7 +82,7 @@ class WMHdataset():
             listDir = [os.path.join(i,f) for f in listDir if os.path.exists(os.path.join(self.filepath,i,f,'pre'))]       
             self.listFolder = self.listFolder + listDir
         length_ = len(self.listFolder)
-        sampleIndex = np.random.choice(range(length_),int(np.round(length_*split)),False)
+        #sampleIndex = np.random.choice(range(length_),int(np.round(length_*split)),False)
         sampleIndex = range(length_)[:int(np.round(length_*split))]
         self.listTrain = [self.listFolder[i] for i in sampleIndex]
         self.listValid = [self.listFolder[i] for i in range(length_) if i not in sampleIndex]
@@ -171,7 +171,7 @@ class WMHdataset():
 #D = WMHdataset(DLpath2)
 #D.InitDataset()
 #
-#dataX , dataY = D.NextBatch3D(50)    
+#dataX , dataY = D.NextBatch3D(2)    
 #maxX = 0
 #for i in dataY:
 #    if maxX < i.max():
