@@ -163,8 +163,8 @@ class WMHdataset():
         plt.imshow(imgFlairOri[slice,:,:], cmap_)
         plt.title('Flair Original')
         plt.tight_layout()
-   
-   
+        
+        
      
 #DLpath2 = '/Users/winsoncws/Hana/WMH/' 
 #D = WMHdataset(DLpath2)
