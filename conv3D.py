@@ -53,3 +53,6 @@ class MaxPool3D():
 
     def _test_fprop(self, state_below):
         return self._train_fprop(state_below)
+        
+    def _variables(self):
+        return self.poolsize
