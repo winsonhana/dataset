@@ -56,8 +56,9 @@ def model3D(img=(83, 256, 256)):
 if __name__ == '__main__':
 
     learning_rate = 0.001
-    batchsize = 5
-
+    batchsize = 2
+    split = 1 # Train Valid Split
+    
     max_epoch = 300
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
@@ -69,8 +70,10 @@ if __name__ == '__main__':
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(split=1.0)         # Take everything 100%
 
-    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
-    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    #X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    #y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    X_ph = tf.placeholder('float32', [None, None, None, None, 1])
+    y_ph = tf.placeholder('float32', [None, None, None, None, 1])
     
     y_train_sb = seq.train_fprop(X_ph)
     y_test_sb = seq.test_fprop(X_ph)
@@ -81,9 +84,13 @@ if __name__ == '__main__':
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
-    #test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = smooth_iou(y_ph, y_test_sb)
+    test_accu_sb = accuracy(y_ph, y_test_sb)
+    #test_accu_sb = smooth_iou(y_ph, y_test_sb)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
+    
+    # model Saver
+    saver = tf.train.Saver()
+    
     
     gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
@@ -96,7 +103,6 @@ if __name__ == '__main__':
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        split = 45
         X_train = dataX[:split]
         X_test = dataX[split:]
         y_train = dataY[:split]
@@ -147,6 +153,9 @@ if __name__ == '__main__':
             else:
                 print('training done!')
                 break
+        
+        save_path = saver.save(sess, "trained_model.ckpt")    
+        print("Model saved in file: %s" % save_path)
 
 
 

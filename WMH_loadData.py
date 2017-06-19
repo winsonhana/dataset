@@ -83,6 +83,7 @@ class WMHdataset():
             self.listFolder = self.listFolder + listDir
         length_ = len(self.listFolder)
         sampleIndex = np.random.choice(range(length_),int(np.round(length_*split)),False)
+        sampleIndex = range(length_)[:int(np.round(length_*split))]
         self.listTrain = [self.listFolder[i] for i in sampleIndex]
         self.listValid = [self.listFolder[i] for i in range(length_) if i not in sampleIndex]
 
