@@ -18,7 +18,7 @@ from math import ceil
 from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
 from conv3D import Conv3D_Tranpose1, MaxPool3D
 
-#
+####
 
 def updateConvLayerSize(dataDimension,stride):
     assert len(dataDimension) == len(stride), "TensorRank of dataset is not the same as stride's rank."
