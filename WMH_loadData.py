@@ -135,8 +135,8 @@ class WMHdataset():
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
         
         print('fetching rawdata from drive')
-        # maxValue = 3180
-        maxValue = 1
+        maxValue = 3180
+        # maxValue = 1
         dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsFlair_]
         dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
         dataY_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]

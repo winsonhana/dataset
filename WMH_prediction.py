@@ -53,7 +53,7 @@ def model3D(img=(83, 256, 256)):
         seq.add(Sigmoid())
     return seq
         
-
+print("into MAIN")
 if __name__ == '__main__':
 
     learning_rate = 0.001
@@ -67,6 +67,7 @@ if __name__ == '__main__':
 
 
     seq = model3D()
+    print("init seq")
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(split=1.0)         # Take everything 100%
@@ -89,12 +90,16 @@ if __name__ == '__main__':
     #test_accu_sb = smooth_iou(y_ph, y_test_sb)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
     
+    print("declare all var")    
+    
+    
     # model Saver
     saver = tf.train.Saver()
     
     
     gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
-    with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
+    with tf.Session() as sess:
+    #with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         print("INITIALIZE SESSION")
@@ -128,7 +133,7 @@ if __name__ == '__main__':
         plt.title('Flair Image')
         plt.subplot(2,2,2)
         plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Predicted Mask, accuracy: %s' % valid_accu)
+        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
         plt.subplot(2,2,3)
         plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
         plt.title('Actual Mask')
