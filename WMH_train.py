@@ -72,76 +72,77 @@ if __name__ == '__main__':
         dataY = [] # clearing memory
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
-#
-#        best_valid_accu = 0
-#        for epoch in range(max_epoch):
-#            print('epoch:', epoch)
-#            pbar = tg.ProgressBar(len(iter_train))
-#            ttl_train_cost = 0
-#            ttl_examples = 0
-#            print('..training')
-#            for X_batch, y_batch in iter_train:
-#                feed_dict = {X_ph:X_batch, y_ph:y_batch}
-#                _, train_cost = sess.run([optimizer,train_cost_sb] , feed_dict=feed_dict)              
-#                ttl_train_cost += len(X_batch) * train_cost
-#                ttl_examples += len(X_batch)
-#                pbar.update(ttl_examples)
-#            mean_train_cost = ttl_train_cost/float(ttl_examples)
-#            print('\ntrain cost', mean_train_cost)
-#
-#            ttl_valid_cost = 0
-#            ttl_valid_accu = 0
-#            ttl_examples = 0
-#            pbar = tg.ProgressBar(len(iter_test))
-#            print('..validating')
-#            for X_batch, y_batch in iter_test:
-#                feed_dict = {X_ph:X_batch, y_ph:y_batch}
-#                valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
-#                ttl_valid_cost += len(X_batch) * valid_cost
-#                ttl_valid_accu += len(X_batch) * valid_accu
-#                ttl_examples += len(X_batch)
-#                pbar.update(ttl_examples)
-#            mean_valid_cost = ttl_valid_cost/float(ttl_examples)
-#            mean_valid_accu = ttl_valid_accu/float(ttl_examples)
-#            print('\nvalid cost', mean_valid_cost)
-#            print('valid accu', mean_valid_accu)
-#            if best_valid_accu < mean_valid_accu:
-#                best_valid_accu = mean_valid_accu
-#
-#            if es.continue_learning(valid_error=mean_valid_cost, epoch=epoch):
-#                print('epoch', epoch)
-#                print('best epoch last update:', es.best_epoch_last_update)
-#                print('best valid last update:', es.best_valid_last_update)
-#                print('best valid accuracy:', best_valid_accu)
-#            else:
-#                print('training done!')
-#                break
-#        
-#        #save_path = saver.save(sess, "trained_model.ckpt")    
-#        #print("Model saved in file: %s" % save_path)
-#        
-#        # PREDICTION
-#        predictIndex = 0
-#        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape),
-#                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
-#        valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
-#        mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
-#        mask_output = (mask_output > 0.5).astype(int)
-#        mask_output = mask_output * 255.0
-#        ####### Plotting
-#        slice = 25
-#        cmap_ = 'CMRmap'
-#        plt.figure(figsize=(7,7))
-#        plt.subplot(2,2,1)
-#        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
-#        plt.title('Flair Image')
-#        plt.subplot(2,2,2)
-#        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-#        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
-#        plt.subplot(2,2,3)
-#        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
-#        plt.title('Actual Mask')
-#        plt.tight_layout()
-#        fig = plt.gcf() # setup png saving file
-#        fig.set_size_inches(5, 5)
-#        fig.savefig('predictMask.png', dpi=200)
+
+        best_valid_accu = 0
+        for epoch in range(max_epoch):
+            print('epoch:', epoch)
+            pbar = tg.ProgressBar(len(iter_train))
+            ttl_train_cost = 0
+            ttl_examples = 0
+            print('..training')
+            for X_batch, y_batch in iter_train:
+                feed_dict = {X_ph:X_batch, y_ph:y_batch}
+                _, train_cost = sess.run([optimizer,train_cost_sb] , feed_dict=feed_dict)              
+                ttl_train_cost += len(X_batch) * train_cost
+                ttl_examples += len(X_batch)
+                pbar.update(ttl_examples)
+            mean_train_cost = ttl_train_cost/float(ttl_examples)
+            print('\ntrain cost', mean_train_cost)
+
+            ttl_valid_cost = 0
+            ttl_valid_accu = 0
+            ttl_examples = 0
+            pbar = tg.ProgressBar(len(iter_test))
+            print('..validating')
+            for X_batch, y_batch in iter_test:
+                feed_dict = {X_ph:X_batch, y_ph:y_batch}
+                valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+                ttl_valid_cost += len(X_batch) * valid_cost
+                ttl_valid_accu += len(X_batch) * valid_accu
+                ttl_examples += len(X_batch)
+                pbar.update(ttl_examples)
+            mean_valid_cost = ttl_valid_cost/float(ttl_examples)
+            mean_valid_accu = ttl_valid_accu/float(ttl_examples)
+            print('\nvalid cost', mean_valid_cost)
+            print('valid accu', mean_valid_accu)
+            if best_valid_accu < mean_valid_accu:
+                best_valid_accu = mean_valid_accu
+
+            if es.continue_learning(valid_error=mean_valid_cost, epoch=epoch):
+                print('epoch', epoch)
+                print('best epoch last update:', es.best_epoch_last_update)
+                print('best valid last update:', es.best_valid_last_update)
+                print('best valid accuracy:', best_valid_accu)
+            else:
+                print('training done!')
+                break
+        
+        #save_path = saver.save(sess, "trained_model.ckpt")    
+        #print("Model saved in file: %s" % save_path)
+        
+        # PREDICTION
+        predictIndex = 0
+        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape),
+                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
+        valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+        mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
+        mask_output = (mask_output > 0.5).astype(int)
+        mask_output = mask_output * 255.0
+        ####### Plotting
+        slice = 25
+        print('predict Object %d of cross-section :' % predictIndex, (slice))
+        cmap_ = 'CMRmap'
+        plt.figure(figsize=(7,7))
+        plt.subplot(2,2,1)
+        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Flair Image')
+        plt.subplot(2,2,2)
+        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+        plt.subplot(2,2,3)
+        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Actual Mask')
+        plt.tight_layout()
+        fig = plt.gcf() # setup png saving file
+        fig.set_size_inches(5, 5)
+        fig.savefig('predictMask.png', dpi=200)
