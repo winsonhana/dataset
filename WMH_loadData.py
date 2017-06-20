@@ -8,7 +8,7 @@ Created on Tue Jun 13 10:05:31 2017
 import os
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
-import nibabel as nib
+# import nibabel as nib
 import numpy as np
 
 
@@ -23,25 +23,25 @@ import numpy as np
 #plt.imshow(T1sitk[20,:,:])
 
 
-def showScanImage(path,index, cmap_='CMRmap'):
-    imgT1 = sitk.GetArrayFromImage(sitk.ReadImage(path+'/pre/T1.nii.gz'))
-    imgFlair = sitk.GetArrayFromImage(sitk.ReadImage(path+'/pre/FLAIR.nii.gz'))
-    imgFlairOri = sitk.GetArrayFromImage(sitk.ReadImage(path+'/orig/FLAIR.nii.gz'))
-    imgWMH = sitk.GetArrayFromImage(sitk.ReadImage(path+'/wmh.nii.gz'))
-    plt.figure(figsize=(7,7))
-    plt.subplot(2,2,1)
-    plt.imshow(imgT1[index,:,:], cmap_)
-    plt.title('T1 Image')
-    plt.subplot(2,2,2)
-    plt.imshow(imgFlair[index,:,:], cmap_)
-    plt.title('Flair Bias Corrected')
-    plt.subplot(2,2,3)
-    plt.imshow(imgWMH[index,:,:], cmap_)
-    plt.title('WMH Label')
-    plt.subplot(2,2,4)
-    plt.imshow(imgFlairOri[index,:,:], cmap_)
-    plt.title('Flair Original')
-    plt.tight_layout()
+#def showScanImage(path,index, cmap_='CMRmap'):
+#    imgT1 = sitk.GetArrayFromImage(sitk.ReadImage(path+'/pre/T1.nii.gz'))
+#    imgFlair = sitk.GetArrayFromImage(sitk.ReadImage(path+'/pre/FLAIR.nii.gz'))
+#    imgFlairOri = sitk.GetArrayFromImage(sitk.ReadImage(path+'/orig/FLAIR.nii.gz'))
+#    imgWMH = sitk.GetArrayFromImage(sitk.ReadImage(path+'/wmh.nii.gz'))
+#    plt.figure(figsize=(7,7))
+#    plt.subplot(2,2,1)
+#    plt.imshow(imgT1[index,:,:], cmap_)
+#    plt.title('T1 Image')
+#    plt.subplot(2,2,2)
+#    plt.imshow(imgFlair[index,:,:], cmap_)
+#    plt.title('Flair Bias Corrected')
+#    plt.subplot(2,2,3)
+#    plt.imshow(imgWMH[index,:,:], cmap_)
+#    plt.title('WMH Label')
+#    plt.subplot(2,2,4)
+#    plt.imshow(imgFlairOri[index,:,:], cmap_)
+#    plt.title('Flair Original')
+#    plt.tight_layout()
 
 
 ### SHOW ONE OF THE SCAN IMAGE ##########
@@ -135,7 +135,9 @@ class WMHdataset():
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
         
         print('fetching rawdata from drive')
-        dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/3180 for i in fullPathsFlair_]
+        # maxValue = 3180
+        maxValue = 1
+        dataX_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsFlair_]
         dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
         dataY_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
         dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
