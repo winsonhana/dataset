@@ -17,6 +17,8 @@ from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 from math import ceil
 from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
 from conv3D import Conv3D_Tranpose1, MaxPool3D
+import matplotlib.pyplot as plt
+
 
 ####
 
@@ -107,6 +109,8 @@ if __name__ == '__main__':
         X_test = dataX[split:]
         y_train = dataY[:split]
         y_test = dataY[split:]
+        dataX = [] # clearing memory
+        dataY = [] # clearing memory
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
 
@@ -154,8 +158,34 @@ if __name__ == '__main__':
                 print('training done!')
                 break
         
-        save_path = saver.save(sess, "trained_model.ckpt")    
-        print("Model saved in file: %s" % save_path)
+        #save_path = saver.save(sess, "trained_model.ckpt")    
+        #print("Model saved in file: %s" % save_path)
+        
+        # PREDICTION
+        predictIndex = 0
+        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape),
+                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
+        valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+        mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
+        mask_output = (mask_output > 0.5).astype(int)
+        mask_output = mask_output * 255.0
+        ####### Plotting
+        slice = 25
+        cmap_ = 'CMRmap'
+        plt.figure(figsize=(7,7))
+        plt.subplot(2,2,1)
+        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Flair Image')
+        plt.subplot(2,2,2)
+        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+        plt.subplot(2,2,3)
+        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Actual Mask')
+        plt.tight_layout()
+        fig = plt.gcf() # setup png saving file
+        fig.set_size_inches(5, 5)
+        fig.savefig('predictMask.png', dpi=200)
 
 
 

@@ -183,7 +183,22 @@ if __name__ == '__main__':
         plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
         plt.title('Actual Mask')
         plt.tight_layout()
-        fig.savefig('predictOutput.png', dpi=200)
+        slice = 25
+        cmap_ = 'CMRmap'
+        plt.figure(figsize=(7,7))
+        plt.subplot(2,2,1)
+        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Flair Image')
+        plt.subplot(2,2,2)
+        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+        plt.subplot(2,2,3)
+        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Actual Mask')
+        plt.tight_layout()
+        fig = plt.gcf() # setup png saving file
+        fig.set_size_inches(5, 5)
+        fig.savefig('predictMask.png', dpi=200)
 
 
 
