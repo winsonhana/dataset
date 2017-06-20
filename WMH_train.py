@@ -10,17 +10,18 @@ import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
 from conv3D import Conv3D_Tranpose1, MaxPool3D
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import WMH_model3D # all model
-
+from scipy.misc import imsave
+import numpy as np
 
 if __name__ == '__main__':
 
     learning_rate = 0.001
-    batchsize = 2
+    batchsize = 3
     split = 45 # Train Valid Split
     
-    max_epoch = 300
+    max_epoch = 40
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -128,59 +129,41 @@ if __name__ == '__main__':
         mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
         mask_output = (mask_output > 0.5).astype(int)
         mask_output = mask_output * 255.0
+        
         ####### Plotting
         slice = 25
-        print('predict Object %d of cross-section :' % predictIndex, (slice))
-        cmap_ = 'CMRmap'
-        plt.figure(figsize=(7,7))
-        plt.subplot(2,2,1)
-        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Flair Image')
-        plt.subplot(2,2,2)
-        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
-        plt.subplot(2,2,3)
-        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Actual Mask')
-        plt.tight_layout()
-        fig = plt.gcf() # setup png saving file
-        fig.set_size_inches(5, 5)
-        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
+        imageBOT = np.concatenate((mask_output[predictIndex,slice,:,:,0],mask_output[predictIndex,slice,:,:,0]),axis=1)
+        images = np.concatenate((imageTOP,imageBOT), axis=0)
+        imsave('predictMask'+str(slice)+'.png', images)
         
         slice = 26
-        print('predict Object %d of cross-section :' % predictIndex, (slice))
-        cmap_ = 'CMRmap'
-        plt.figure(figsize=(7,7))
-        plt.subplot(2,2,1)
-        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Flair Image')
-        plt.subplot(2,2,2)
-        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
-        plt.subplot(2,2,3)
-        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Actual Mask')
-        plt.tight_layout()
-        fig = plt.gcf() # setup png saving file
-        fig.set_size_inches(5, 5)
-        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
+        imageBOT = np.concatenate((mask_output[predictIndex,slice,:,:,0],mask_output[predictIndex,slice,:,:,0]),axis=1)
+        images = np.concatenate((imageTOP,imageBOT), axis=0)
+        imsave('predictMask'+str(slice)+'.png', images)
         
         slice = 27
-        print('predict Object %d of cross-section :' % predictIndex, (slice))
-        cmap_ = 'CMRmap'
-        plt.figure(figsize=(7,7))
-        plt.subplot(2,2,1)
-        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Flair Image')
-        plt.subplot(2,2,2)
-        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
-        plt.subplot(2,2,3)
-        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Actual Mask')
-        plt.tight_layout()
-        fig = plt.gcf() # setup png saving file
-        fig.set_size_inches(5, 5)
-        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
+        imageBOT = np.concatenate((mask_output[predictIndex,slice,:,:,0],mask_output[predictIndex,slice,:,:,0]),axis=1)
+        images = np.concatenate((imageTOP,imageBOT), axis=0)
+        imsave('predictMask'+str(slice)+'.png', images)
+#        print('predict Object %d of cross-section :' % predictIndex, (slice))
+#        cmap_ = 'CMRmap'
+#        plt.figure(figsize=(7,7))
+#        plt.subplot(2,2,1)
+#        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
+#        plt.title('Flair Image')
+#        plt.subplot(2,2,2)
+#        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
+#        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+#        plt.subplot(2,2,3)
+#        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
+#        plt.title('Actual Mask')
+#        plt.tight_layout()
+#        fig = plt.gcf() # setup png saving file
+#        fig.set_size_inches(5, 5)
+#        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+        
 
 
