@@ -26,7 +26,7 @@ if __name__ == '__main__':
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_2()
+    seq = WMH_model3D.model3D()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(split=1.0)         # Take everything 100%
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
-        dataY[dataY ==2] = 0
+        # dataY[dataY ==2] = 0
         #######
         X_train = dataX[:split]
         X_test = dataX[split:]
@@ -145,4 +145,42 @@ if __name__ == '__main__':
         plt.tight_layout()
         fig = plt.gcf() # setup png saving file
         fig.set_size_inches(5, 5)
-        fig.savefig('predictMask.png', dpi=200)
+        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+        
+        slice = 26
+        print('predict Object %d of cross-section :' % predictIndex, (slice))
+        cmap_ = 'CMRmap'
+        plt.figure(figsize=(7,7))
+        plt.subplot(2,2,1)
+        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Flair Image')
+        plt.subplot(2,2,2)
+        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+        plt.subplot(2,2,3)
+        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Actual Mask')
+        plt.tight_layout()
+        fig = plt.gcf() # setup png saving file
+        fig.set_size_inches(5, 5)
+        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+        
+        slice = 27
+        print('predict Object %d of cross-section :' % predictIndex, (slice))
+        cmap_ = 'CMRmap'
+        plt.figure(figsize=(7,7))
+        plt.subplot(2,2,1)
+        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Flair Image')
+        plt.subplot(2,2,2)
+        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+        plt.subplot(2,2,3)
+        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
+        plt.title('Actual Mask')
+        plt.tight_layout()
+        fig = plt.gcf() # setup png saving file
+        fig.set_size_inches(5, 5)
+        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
+
+
