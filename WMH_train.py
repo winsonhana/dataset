@@ -46,8 +46,8 @@ if __name__ == '__main__':
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
-    test_accu_sb = accuracy(y_ph, y_test_sb)
-    #test_accu_sb = smooth_iou(y_ph, y_test_sb)
+    #test_accu_sb = accuracy(y_ph, y_test_sb)
+    test_accu_sb = smooth_iou(y_ph, y_test_sb)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
     
     # model Saver
@@ -123,9 +123,9 @@ if __name__ == '__main__':
         
         # PREDICTION
         predictIndex = 6
-        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape),
-                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
-        valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
+#                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
+#       valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
         mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
 
         print('mask_outpt type')        
