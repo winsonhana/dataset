@@ -21,7 +21,7 @@ if __name__ == '__main__':
     batchsize = 3
     split = 45 # Train Valid Split
     
-    max_epoch = 40
+    max_epoch = 2
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -32,10 +32,10 @@ if __name__ == '__main__':
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(split=1.0)         # Take everything 100%
 
-    #X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
-    #y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
-    X_ph = tf.placeholder('float32', [None, None, None, None, 1])
-    y_ph = tf.placeholder('float32', [None, None, None, None, 1])
+    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
+    #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
     
     y_train_sb = seq.train_fprop(X_ph)
     y_test_sb = seq.test_fprop(X_ph)
@@ -122,30 +122,38 @@ if __name__ == '__main__':
         #print("Model saved in file: %s" % save_path)
         
         # PREDICTION
-        predictIndex = 0
+        predictIndex = 6
         feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape),
                      y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
         valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
         mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
-        mask_output = (mask_output > 0.5).astype(int)
-        mask_output = mask_output * 255.0
+
+        print('mask_outpt type')        
+        print(type(mask_output))
+        #mask_output = (mask_output > 0.5).astype(int)
+        #mask_output = mask_output * 255.0
+        print(mask_output.shape)        
         
         ####### Plotting
-        slice = 25
+        slice = 47    
         imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-        imageBOT = np.concatenate((mask_output[predictIndex,slice,:,:,0],mask_output[predictIndex,slice,:,:,0]),axis=1)
+        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
+        #imageBOT = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)  
         images = np.concatenate((imageTOP,imageBOT), axis=0)
         imsave('predictMask'+str(slice)+'.png', images)
         
-        slice = 26
+#        imsave('training_pic.png',y_test[6,48,:,:,0])        
+#        imsave('training_pic2.png',imageTOP)        
+        
+        slice = 48
         imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-        imageBOT = np.concatenate((mask_output[predictIndex,slice,:,:,0],mask_output[predictIndex,slice,:,:,0]),axis=1)
+        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
         images = np.concatenate((imageTOP,imageBOT), axis=0)
         imsave('predictMask'+str(slice)+'.png', images)
         
-        slice = 27
+        slice = 49
         imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-        imageBOT = np.concatenate((mask_output[predictIndex,slice,:,:,0],mask_output[predictIndex,slice,:,:,0]),axis=1)
+        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
         images = np.concatenate((imageTOP,imageBOT), axis=0)
         imsave('predictMask'+str(slice)+'.png', images)
 #        print('predict Object %d of cross-section :' % predictIndex, (slice))
