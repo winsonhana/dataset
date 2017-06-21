@@ -118,12 +118,12 @@ if __name__ == '__main__':
         #######
         predictIndex = 0
         saver.restore(sess, "trained_model.ckpt")
-        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape),
-                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
-        valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
+#                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
+#        valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
         mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
-        mask_output = (mask_output > 0.5).astype(int)
-        mask_output = mask_output * 255.0
+#        mask_output = (mask_output > 0.5).astype(int)
+#        mask_output = mask_output * 255.0
         ####### Plotting
         slice = 25
         cmap_ = 'CMRmap'
@@ -132,8 +132,8 @@ if __name__ == '__main__':
         plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
         plt.title('Flair Image')
         plt.subplot(2,2,2)
-        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
+        plt.imshow(mask_output[0,slice,:,:,0], cmap_)
+        plt.title('Predicted Mask, accuracy: %d' % 'valid_accu')
         plt.subplot(2,2,3)
         plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
         plt.title('Actual Mask')

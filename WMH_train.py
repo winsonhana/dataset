@@ -4,7 +4,7 @@ Created on Tue Jun 20 12:24:48 2017
 
 @author: winsoncws
 """
-
+import sys
 import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
@@ -18,10 +18,10 @@ import numpy as np
 if __name__ == '__main__':
 
     learning_rate = 0.001
-    batchsize = 3
-    split = 45 # Train Valid Split
+    batchsize = 1
+    split = 48 # Train Valid Split
     
-    max_epoch = 2
+    max_epoch = 100
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -42,7 +42,8 @@ if __name__ == '__main__':
 
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
-    train_cost_sb = entropy(y_ph, y_train_sb)
+    #train_cost_sb = entropy(y_ph, y_train_sb)
+    train_cost_sb = smooth_iou(y_ph, y_train_sb)
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
@@ -60,10 +61,12 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
         
+        sys.exit()        
+        
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
-        # dataY[dataY ==2] = 0
+        dataY[dataY ==2] = 0
         #######
         X_train = dataX[:split]
         X_test = dataX[split:]
@@ -98,6 +101,7 @@ if __name__ == '__main__':
             for X_batch, y_batch in iter_test:
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
                 valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+                mask_output = sess.run(y_test_sb, feed_dict={X_})
                 ttl_valid_cost += len(X_batch) * valid_cost
                 ttl_valid_accu += len(X_batch) * valid_accu
                 ttl_examples += len(X_batch)

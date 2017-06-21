@@ -50,8 +50,8 @@ def model3D(img=(83, 256, 256)):
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=1, output_shape=img, kernel_size=(3,3,3), stride=(2,2,2), padding='SAME'))
-        seq.add(Softmax())
-        #seq.add(Sigmoid())
+        #seq.add(Softmax())
+        seq.add(Sigmoid())
     return seq
         
 def model3D_2(img=(83, 256, 256)):
@@ -76,3 +76,23 @@ def model3D_2(img=(83, 256, 256)):
     return seq
 
 
+def model3D_3(img=(83, 256, 256)):
+    with tf.name_scope('WMH'):
+        seq = tg.Sequential()
+        convStride = (1,1,1)
+        poolStride = (2,2,2)
+        kernelSize = (5,5,5)
+        seq.add(Conv3D(input_channels=1, num_filters=8, kernel_size=kernelSize, stride=convStride, padding='SAME'))        
+        seq.add(TFBatchNormalization(name='b1'))
+        seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
+        layerSize1 = updateConvLayerSize(img,poolStride)    
+        seq.add(RELU())
+        seq.add(Conv3D(input_channels=8, num_filters=16, kernel_size=kernelSize, stride=convStride, padding='SAME'))
+        seq.add(TFBatchNormalization(name='b2'))
+        seq.add(RELU())
+        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=kernelSize, stride=convStride, padding='SAME'))
+        seq.add(RELU())
+        seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=1, output_shape=img, kernel_size=kernelSize, stride=(2,2,2), padding='SAME'))
+        seq.add(Softmax())
+        #seq.add(Sigmoid())
+    return seq
