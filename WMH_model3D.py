@@ -29,6 +29,12 @@ def updateConvLayerSize(dataDimension,stride):
         output_ += (int(ceil(dataDimension[i]/float(stride[i]))),)
     return output_
     
+def softmaxDim(target, axis, name=None):
+    max_axis = tf.reduce_max(target, axis, keep_dims=True)
+    target_exp = tf.exp(target-max_axis)
+    normalize = tf.reduce_sum(target_exp, axis, keep_dims=True)
+    softmax = target_exp / normalize
+    return softmax
 
 def model3D(img=(83, 256, 256)):
     with tf.name_scope('WMH'):

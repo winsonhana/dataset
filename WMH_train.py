@@ -43,12 +43,12 @@ if __name__ == '__main__':
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     #train_cost_sb = entropy(y_ph, y_train_sb)
-    train_cost_sb = smooth_iou(y_ph, y_train_sb)
+    train_cost_sb = iou(y_ph, y_train_sb)
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
     #test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = smooth_iou(y_ph, y_test_sb)
+    test_accu_sb = iou(y_ph, y_test_sb)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
     
     # model Saver
