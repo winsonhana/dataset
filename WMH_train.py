@@ -17,6 +17,7 @@ import numpy as np
 
 if __name__ == '__main__':
 
+
     learning_rate = 0.001
     batchsize = 6
     split = 48 # Train Valid Split
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     #train_cost_sb = entropy(y_ph, y_train_sb)
-    train_cost_sb = smooth_iou(y_ph, y_train_sb)
+    train_cost_sb = 1 - smooth_iou(y_ph, y_train_sb)
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
@@ -63,9 +64,7 @@ if __name__ == '__main__':
         init = tf.global_variables_initializer()
         sess.run(init)
         print("INITIALIZE SESSION")
-        
-        #sys.exit() 
-        #tf.reduce_max()
+
         
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
@@ -130,7 +129,8 @@ if __name__ == '__main__':
         print("Model saved in file: %s" % save_path)
         
         # PREDICTION
-        predictIndex = 6
+        predictIndex = sys.argv # input from terminal
+        
         feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
 #                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
 #       valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
