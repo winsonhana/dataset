@@ -101,7 +101,7 @@ if __name__ == '__main__':
             for X_batch, y_batch in iter_test:
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
                 valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
-                mask_output = sess.run(y_test_sb, feed_dict={X_})
+                #mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
                 ttl_valid_cost += len(X_batch) * valid_cost
                 ttl_valid_accu += len(X_batch) * valid_accu
                 ttl_examples += len(X_batch)
