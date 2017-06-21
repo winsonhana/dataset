@@ -61,7 +61,7 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
         
-        sys.exit()        
+        #sys.exit()        
         
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
