@@ -65,7 +65,7 @@ if __name__ == '__main__':
         print("INITIALIZE SESSION")
         
         #sys.exit() 
-        tf.reduce_max()
+        #tf.reduce_max()
         
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
