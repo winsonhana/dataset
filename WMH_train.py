@@ -18,7 +18,7 @@ import numpy as np
 if __name__ == '__main__':
 
     learning_rate = 0.001
-    batchsize = 1
+    batchsize = 6
     split = 48 # Train Valid Split
     
     max_epoch = 100
@@ -43,12 +43,15 @@ if __name__ == '__main__':
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     #train_cost_sb = entropy(y_ph, y_train_sb)
-    train_cost_sb = iou(y_ph, y_train_sb)
+    train_cost_sb = smooth_iou(y_ph, y_train_sb)
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
     #test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = iou(y_ph, y_test_sb)
+    test_accu_sb = iou(y_ph, y_test_sb, threshold=0.2)
+
+    print('DONE')    
+
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
     
     # model Saver
@@ -61,7 +64,8 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
         
-        #sys.exit()        
+        #sys.exit() 
+        tf.reduce_max()
         
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
@@ -122,8 +126,8 @@ if __name__ == '__main__':
                 print('training done!')
                 break
         
-        #save_path = saver.save(sess, "trained_model.ckpt")    
-        #print("Model saved in file: %s" % save_path)
+        save_path = saver.save(sess, "trained_model.ckpt")    
+        print("Model saved in file: %s" % save_path)
         
         # PREDICTION
         predictIndex = 6
@@ -138,28 +142,23 @@ if __name__ == '__main__':
         #mask_output = mask_output * 255.0
         print(mask_output.shape)        
         
-        ####### Plotting
-        slice = 47    
-        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
-        #imageBOT = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)  
-        images = np.concatenate((imageTOP,imageBOT), axis=0)
-        imsave('predictMask'+str(slice)+'.png', images)
+        np.save('X_test.npy',X_test[predictIndex])
+        np.save('y_test.npy',y_test[predictIndex])
+        np.save('mask_output.npy',mask_output[0])
         
+        
+        ####### Plotting
+#        slice = 47    
+#        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
+#        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
+#        #imageBOT = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)  
+#        images = np.concatenate((imageTOP,imageBOT), axis=0)
+#        imsave('predictMask'+str(slice)+'.png', images)
+#        
 #        imsave('training_pic.png',y_test[6,48,:,:,0])        
 #        imsave('training_pic2.png',imageTOP)        
         
-        slice = 48
-        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
-        images = np.concatenate((imageTOP,imageBOT), axis=0)
-        imsave('predictMask'+str(slice)+'.png', images)
-        
-        slice = 49
-        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
-        images = np.concatenate((imageTOP,imageBOT), axis=0)
-        imsave('predictMask'+str(slice)+'.png', images)
+
 #        print('predict Object %d of cross-section :' % predictIndex, (slice))
 #        cmap_ = 'CMRmap'
 #        plt.figure(figsize=(7,7))
