@@ -7,7 +7,7 @@ Created on Tue Jun 20 12:24:48 2017
 import sys
 import tensorgraph as tg
 import tensorflow as tf
-from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
+from tensorgraph.cost import entropy, accuracy, iou, smooth_iou, image_f1
 from WMH_loadT1Flair import WMHdataset # 3D MRI Scanned Dataset
 #from conv3D import Conv3D_Tranpose1, MaxPool3D
 #import matplotlib.pyplot as plt
@@ -75,9 +75,9 @@ if __name__ == '__main__':
 
 
         
-        dataX, dataY = dataset.NextBatch3D(4) # Take everything
-        split = 3
-        batchsize = 1
+        dataX, dataY = dataset.NextBatch3D(60) # Take everything
+        split = 48
+        batchsize = 4
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
@@ -141,6 +141,7 @@ if __name__ == '__main__':
         
         # PREDICTION
         predictIndex = sys.argv # input from terminal
+        #predictIndex = 6
         
         feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
 #                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}

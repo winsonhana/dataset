@@ -29,6 +29,38 @@ def updateConvLayerSize(dataDimension,stride):
         output_ += (int(ceil(dataDimension[i]/float(stride[i]))),)
     return output_
 
+def _residual(self, x, in_filter, out_filter, stride, activate_before_residual=False):
+    """Residual unit with 2 sub layers."""
+    if activate_before_residual: 
+        with tf.variable_scope('shared_activation'):
+            x = self._batch_norm('init_bn', x)
+            x = self._relu(x, self.hps.relu_leakiness)
+            orig_x = x
+    else:
+        with tf.variable_scope('residual_only_activation'):
+            orig_x = x
+            x = self._batch_norm('init_bn', x)
+            x = self._relu(x, self.hps.relu_leakiness)
+
+    with tf.variable_scope('sub1'):
+        x = self._conv('conv1', x, 3, in_filter, out_filter, stride)
+
+    with tf.variable_scope('sub2'):
+        x = self._batch_norm('bn2', x)
+        x = self._relu(x, self.hps.relu_leakiness)
+        x = self._conv('conv2', x, 3, out_filter, out_filter, [1, 1, 1, 1])
+
+    with tf.variable_scope('sub_add'):
+        if in_filter != out_filter:
+            orig_x = tf.nn.avg_pool(orig_x, stride, stride, 'VALID')
+            orig_x = tf.pad(
+                orig_x, [[0, 0], [0, 0], [0, 0],
+                     [(out_filter-in_filter)//2, (out_filter-in_filter)//2]])
+        x += orig_x
+
+    tf.logging.debug('image after unit %s', x.get_shape())
+    return x
+
 
 def model3D(img=(83, 256, 256)):
     with tf.name_scope('WMH'):

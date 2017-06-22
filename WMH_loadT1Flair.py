@@ -42,6 +42,7 @@ class WMHdataset():
             return False
     
     def InitDataset(self,splitRatio=1.0, shuffle=False):
+        np.random.seed(0) # set seed for reproducibility
         assert self.AbleToRetrieveData(), "not able to retrieve data from path."
         for i in self.institute:
             path_ = os.path.join(self.filepath,i)
