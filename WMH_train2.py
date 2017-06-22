@@ -22,7 +22,7 @@ if __name__ == '__main__':
     batchsize = 6
     split = 48 # Train Valid Split
     
-    max_epoch = 100
+    max_epoch = 2
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -142,6 +142,7 @@ if __name__ == '__main__':
         # PREDICTION
         predictIndex = sys.argv # input from terminal
         #predictIndex = 6
+        print('Predicting Scanner No#'+str(predictIndex))        
         
         feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
 #                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}

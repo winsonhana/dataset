@@ -34,6 +34,7 @@ def _residual(self, x, in_filter, out_filter, stride, activate_before_residual=F
     if activate_before_residual: 
         with tf.variable_scope('shared_activation'):
             x = self._batch_norm('init_bn', x)
+            x = TFBatchNormalization('init_bn')
             x = self._relu(x, self.hps.relu_leakiness)
             orig_x = x
     else:
