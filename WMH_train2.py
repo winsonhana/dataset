@@ -8,11 +8,11 @@ import sys
 import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
-from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
-from conv3D import Conv3D_Tranpose1, MaxPool3D
+from WMH_loadT1Flair import WMHdataset # 3D MRI Scanned Dataset
+#from conv3D import Conv3D_Tranpose1, MaxPool3D
 #import matplotlib.pyplot as plt
 import WMH_model3D # all model
-from scipy.misc import imsave
+#from scipy.misc import imsave
 import numpy as np
 
 if __name__ == '__main__':
@@ -28,38 +28,40 @@ if __name__ == '__main__':
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_2()
+    seq = WMH_model3D.model3D_2()   # second model
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
-    dataset.InitDataset(split=1.0)         # Take everything 100%
+    dataset.InitDataset(splitRatio=1.0, shuffle=False)         # Take everything 100%
 
-    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 2])
-    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 3])
+    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 2]) 
+    y_ph = tf.placeholder('uint8', [None, 83, 256, 256, 1])
+    y_ph_cat = tf.one_hot(y_ph,3) # --> unstack into 3 categorical Tensor [?, 83, 256, 256, 1, 3]
+    y_ph_cat = tf.reduce_max(y_ph_cat, 4)   # --> collapse the extra 4th redundant dimension
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
-    
+
+    #### COST FUNCTION
     y_train_sb = seq.train_fprop(X_ph)
     y_test_sb = seq.test_fprop(X_ph)
 
-    #### COST FUNCTION
-    #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
-    #train_cost_sb = entropy(y_ph, y_train_sb)
+    train_cost_background = smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0])
+    train_cost_label = smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1])
+    train_cost_others = smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2])
+    train_cost_average = 1 - tf.reduce_mean([train_cost_background,train_cost_label,train_cost_others])
 
-#    train_cost_background = 
-#
+    valid_cost_background = smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0])
+    valid_cost_label = smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1])
+    valid_cost_others = smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2])
+    valid_cost_average = 1 - tf.reduce_mean([valid_cost_background,valid_cost_label,valid_cost_others])  
+
 #    tf.metrics.mean_iou
 #    tf.contrib.metrics.streaming_mean_iou
 
-    train_cost_sb = 1 - smooth_iou(y_ph, y_train_sb)
-
-    #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
-    test_cost_sb = entropy(y_ph, y_test_sb)
-    test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = iou(y_ph, y_test_sb, threshold=0.2)
+    test_accu_sb = iou(y_ph_cat, y_test_sb, threshold=0.5)
 
     print('DONE')    
 
-    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
+    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_average)
     
     # model Saver
     saver = tf.train.Saver()
@@ -71,11 +73,14 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
 
+
         
-        dataX, dataY = dataset.NextBatch3D(60) # Take everything
+        dataX, dataY = dataset.NextBatch3D(4) # Take everything
+        split = 3
+        batchsize = 1
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
-        dataY[dataY ==2] = 0
+        # dataY[dataY ==2] = 0
         #######
         X_train = dataX[:split]
         X_test = dataX[split:]
@@ -95,7 +100,7 @@ if __name__ == '__main__':
             print('..training')
             for X_batch, y_batch in iter_train:
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
-                _, train_cost = sess.run([optimizer,train_cost_sb] , feed_dict=feed_dict)              
+                _, train_cost = sess.run([optimizer,train_cost_average] , feed_dict=feed_dict)              
                 ttl_train_cost += len(X_batch) * train_cost
                 ttl_examples += len(X_batch)
                 pbar.update(ttl_examples)
@@ -109,7 +114,7 @@ if __name__ == '__main__':
             print('..validating')
             for X_batch, y_batch in iter_test:
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
-                valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+                valid_cost, valid_accu = sess.run([valid_cost_average, test_accu_sb] , feed_dict=feed_dict)
                 #mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
                 ttl_valid_cost += len(X_batch) * valid_cost
                 ttl_valid_accu += len(X_batch) * valid_accu
@@ -131,7 +136,7 @@ if __name__ == '__main__':
                 print('training done!')
                 break
         
-        save_path = saver.save(sess, "trained_model.ckpt")    
+        save_path = saver.save(sess, "trained_model_2.ckpt")    
         print("Model saved in file: %s" % save_path)
         
         # PREDICTION

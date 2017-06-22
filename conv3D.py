@@ -1,5 +1,29 @@
 import tensorflow as tf
 
+class SoftMaxMultiDim():
+    """Computes softmax activations for multidimensional Tensor
+    
+      softmax = exp(Tensor) / reduce_sum(exp(Tensor), dim)
+      where reduce_sum can be done across multi dimension as well.
+      E.g. a Tensor of shape (a,b,c,d,e,f), softmax can compute across an array
+      of dimension = [b,c,f]
+
+    """
+    def __init__(self, axis=-1):
+        self.axis = axis
+    def softmaxDim(target, axis):
+        max_axis = tf.reduce_max(target, axis, keep_dims=True)
+        target_exp = tf.exp(target-max_axis)
+        normalize = tf.reduce_sum(target_exp, axis, keep_dims=True)
+        softmax = target_exp / normalize
+        return softmax
+    def _train_fprop(self, state_below):
+        return self.softmaxDim(state_below, self.axis)    
+    def _test_fprop(self, state_below):
+        return self._train_fprop(self, state_below)
+
+
+
 class Conv3D_Tranpose1():
     def __init__(self, input_channels, num_filters, output_shape, kernel_size=(3,3,3), stride=(1,1,1),
                  filter=None, b=None, padding='VALID'):

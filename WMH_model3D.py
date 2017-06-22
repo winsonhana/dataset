@@ -16,7 +16,7 @@ import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 from math import ceil
 from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
-from conv3D import Conv3D_Tranpose1, MaxPool3D
+from conv3D import Conv3D_Tranpose1, MaxPool3D, SoftMaxMultiDim
 
 
 
@@ -28,13 +28,7 @@ def updateConvLayerSize(dataDimension,stride):
     for i in range(len(stride)):
         output_ += (int(ceil(dataDimension[i]/float(stride[i]))),)
     return output_
-    
-def softmaxDim(target, axis, name=None):
-    max_axis = tf.reduce_max(target, axis, keep_dims=True)
-    target_exp = tf.exp(target-max_axis)
-    normalize = tf.reduce_sum(target_exp, axis, keep_dims=True)
-    softmax = target_exp / normalize
-    return softmax
+
 
 def model3D(img=(83, 256, 256)):
     with tf.name_scope('WMH'):
@@ -60,23 +54,28 @@ def model3D(img=(83, 256, 256)):
         seq.add(Sigmoid())
     return seq
         
+
 def model3D_2(img=(83, 256, 256)):
-    with tf.name_scope('WMH'):
+    with tf.name_scope('WMH_2Chan_Input'):
         seq = tg.Sequential()
         convStride = (1,1,1)
         poolStride = (2,2,2)
         kernelSize = (5,5,5)
-        seq.add(Conv3D(input_channels=1, num_filters=8, kernel_size=kernelSize, stride=convStride, padding='SAME'))        
-        seq.add(TFBatchNormalization(name='b1'))
+        seq.add(Conv3D(input_channels=2, num_filters=8, kernel_size=kernelSize, stride=convStride, padding='SAME'))        
+        #seq.add(TFBatchNormalization(name='b1'))
         seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
-        layerSize1 = updateConvLayerSize(img,poolStride)    
+        layerSize1 = updateConvLayerSize(img,poolStride)
+        #print("layer1: "+str(layerSize1))
         seq.add(RELU())
         seq.add(Conv3D(input_channels=8, num_filters=16, kernel_size=kernelSize, stride=convStride, padding='SAME'))
-        seq.add(TFBatchNormalization(name='b2'))
+        #seq.add(TFBatchNormalization(name='b2'))
+        #layerSize2 = updateConvLayerSize(layerSize1,convStride)
+        #print("layer1: "+str(layerSize2))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=kernelSize, stride=convStride, padding='SAME'))
         seq.add(RELU())
-        seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=1, output_shape=img, kernel_size=kernelSize, stride=(2,2,2), padding='SAME'))
+        # num_filter=3 --> Background, WhiteMatter, Others
+        seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=3, output_shape=img, kernel_size=kernelSize, stride=(2,2,2), padding='SAME'))       
         seq.add(Softmax())
         #seq.add(Sigmoid())
     return seq
