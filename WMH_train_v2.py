@@ -131,52 +131,18 @@ if __name__ == '__main__':
         print("Model saved in file: %s" % save_path)
         
         # PREDICTION
-        predictIndex = sys.argv # input from terminal
+        predictIndex = sys.argv[1] # input from terminal
+        print('Prediction 3D Scan of No #'+predictIndex)        
+        intIndex = int(predictIndex)  
         
-        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
-#                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
-#       valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+        feed_dict = {X_ph:X_test[intIndex].reshape((1,)+X_test[0].shape)}
         mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
 
         print('mask_outpt type')        
         print(type(mask_output))
-        #mask_output = (mask_output > 0.5).astype(int)
-        #mask_output = mask_output * 255.0
         print(mask_output.shape)        
         
-        np.save('X_test.npy',X_test[predictIndex])
-        np.save('y_test.npy',y_test[predictIndex])
+        np.save('X_test.npy',X_test[intIndex])
+        np.save('y_test.npy',y_test[intIndex])
         np.save('mask_output.npy',mask_output[0])
         
-        
-        ####### Plotting
-#        slice = 47    
-#        imageTOP = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)
-#        imageBOT = np.concatenate((mask_output[0,slice,:,:,0],mask_output[0,slice,:,:,0]),axis=1)
-#        #imageBOT = np.concatenate((X_test[predictIndex,slice,:,:,0],y_test[predictIndex,slice,:,:,0]),axis=1)  
-#        images = np.concatenate((imageTOP,imageBOT), axis=0)
-#        imsave('predictMask'+str(slice)+'.png', images)
-#        
-#        imsave('training_pic.png',y_test[6,48,:,:,0])        
-#        imsave('training_pic2.png',imageTOP)        
-        
-
-#        print('predict Object %d of cross-section :' % predictIndex, (slice))
-#        cmap_ = 'CMRmap'
-#        plt.figure(figsize=(7,7))
-#        plt.subplot(2,2,1)
-#        plt.imshow(X_test[predictIndex,slice,:,:,0], cmap_)
-#        plt.title('Flair Image')
-#        plt.subplot(2,2,2)
-#        plt.imshow(mask_output[predictIndex,slice,:,:,0], cmap_)
-#        plt.title('Predicted Mask, accuracy: %d' % valid_accu)
-#        plt.subplot(2,2,3)
-#        plt.imshow(y_test[predictIndex,slice,:,:,0], cmap_)
-#        plt.title('Actual Mask')
-#        plt.tight_layout()
-#        fig = plt.gcf() # setup png saving file
-#        fig.set_size_inches(5, 5)
-#        fig.savefig('predictMask'+str(slice)+'.png', dpi=200)
-        
-
-
