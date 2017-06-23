@@ -23,7 +23,7 @@ if __name__ == '__main__':
     split = 48 # Train Valid Split
     
 
-    max_epoch = 50
+    max_epoch = 75
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         save_path = saver.save(sess, "trained_model_2.ckpt")    
         print("Model saved in file: %s" % save_path)
         
-        # PREDICTION
+        #### 1ST PREDICTION
         predictIndex = sys.argv[1] # input from terminal
         #predictIndex = 6
         intIndex = int(predictIndex)
@@ -144,11 +144,26 @@ if __name__ == '__main__':
         #mask_output = mask_output * 255.0
         print(mask_output.shape)        
         
-
         np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
         np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
         np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
 
+        ##### 2ND PREDICTION
+        predictIndex = sys.argv[2] # input from terminal
+        print('Prediction 3D Scan of No #'+predictIndex)        
+        intIndex = int(predictIndex)  
+        
+        feed_dict = {X_ph:X_test[intIndex].reshape((1,)+X_test[0].shape)}
+        mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
+
+        print('mask_outpt type')        
+        print(type(mask_output))
+        print(mask_output.shape)        
+        
+        np.save('X_test_'+intIndex+'.npy',X_test[intIndex])
+        np.save('y_test_'+intIndex+'.npy',y_test[intIndex])
+        np.save('mask_output_'+intIndex+'.npy',mask_output[0])
+        
         
         ####### Plotting
 #        slice = 47    
