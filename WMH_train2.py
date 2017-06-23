@@ -19,10 +19,10 @@ if __name__ == '__main__':
 
 
     learning_rate = 0.001
-    batchsize = 6
+    #batchsize = 6
     split = 48 # Train Valid Split
     
-    max_epoch = 2
+    max_epoch = 30
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
@@ -140,12 +140,12 @@ if __name__ == '__main__':
         print("Model saved in file: %s" % save_path)
         
         # PREDICTION
-        predictIndex = sys.argv # input from terminal
+        predictIndex = sys.argv[1] # input from terminal
         #predictIndex = 6
-        print('Predicting Scanner No#'+str(predictIndex))        
+        intIndex = int(predictIndex)
+        print('Predicting Scanner No#'+predictIndex)        
         
-        feed_dict = {X_ph:X_test[predictIndex].reshape((1,)+X_test[0].shape)}
-#                     y_ph:y_test[predictIndex].reshape((1,)+X_test[0].shape)}
+        feed_dict = {X_ph:X_test[intIndex].reshape((1,)+X_test[0].shape)}
 #       valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
         mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
 
@@ -155,9 +155,9 @@ if __name__ == '__main__':
         #mask_output = mask_output * 255.0
         print(mask_output.shape)        
         
-        np.save('X_test.npy',X_test[predictIndex])
-        np.save('y_test.npy',y_test[predictIndex])
-        np.save('mask_output.npy',mask_output[0])
+        np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
+        np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
+        np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
         
         
         ####### Plotting
