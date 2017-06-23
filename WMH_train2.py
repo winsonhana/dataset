@@ -22,6 +22,7 @@ if __name__ == '__main__':
     #batchsize = 6
     split = 48 # Train Valid Split
     
+
     max_epoch = 30
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
@@ -155,10 +156,11 @@ if __name__ == '__main__':
         #mask_output = mask_output * 255.0
         print(mask_output.shape)        
         
+
         np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
         np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
         np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
-        
+
         
         ####### Plotting
 #        slice = 47    
