@@ -104,7 +104,7 @@ class WMHdataset():
         fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
         
-        print('fetching rawdata from drive')
+        print('fetching '+dataset+' rawdata from drive')
         # maxValue = 3180.0
         maxValue = 1.0
         dataT1_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsT1_]

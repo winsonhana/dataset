@@ -23,23 +23,20 @@ if __name__ == '__main__':
     split = 48 # Train Valid Split
     
 
-    max_epoch = 30
+    max_epoch = 50
     es = tg.EarlyStopper(max_epoch=max_epoch,
                          epoch_look_back=3,
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_2()   # second model
+    seq = WMH_model3D.model3D_Residual()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
-    dataset.InitDataset(splitRatio=1.0, shuffle=False)         # Take everything 100%
-
+    
     X_ph = tf.placeholder('float32', [None, 83, 256, 256, 2]) 
     y_ph = tf.placeholder('uint8', [None, 83, 256, 256, 1])
     y_ph_cat = tf.one_hot(y_ph,3) # --> unstack into 3 categorical Tensor [?, 83, 256, 256, 1, 3]
     y_ph_cat = tf.reduce_max(y_ph_cat, 4)   # --> collapse the extra 4th redundant dimension
-    #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
-    #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
 
     #### COST FUNCTION
     y_train_sb = seq.train_fprop(X_ph)
@@ -55,18 +52,14 @@ if __name__ == '__main__':
     valid_cost_others = smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2])
     valid_cost_average = 1 - tf.reduce_mean([valid_cost_background,valid_cost_label,valid_cost_others])  
 
-#    tf.metrics.mean_iou
-#    tf.contrib.metrics.streaming_mean_iou
-
+    # Accuracy
     test_accu_sb = iou(y_ph_cat, y_test_sb, threshold=0.5)
 
-    print('DONE')    
-
+    # Gradient Descent
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_average)
-    
+
     # model Saver
     saver = tf.train.Saver()
-    
     
     gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
     with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
@@ -74,21 +67,16 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
 
-
+        dataset.InitDataset(splitRatio=0.80, shuffle=False)  # Take everything 100%
         
-        dataX, dataY = dataset.NextBatch3D(60) # Take everything
-        split = 48
         batchsize = 4
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        X_train = dataX[:split]
-        X_test = dataX[split:]
-        y_train = dataY[:split]
-        y_test = dataY[split:]
-        dataX = [] # clearing memory
-        dataY = [] # clearing memory
+        X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
+        X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
+
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
 
