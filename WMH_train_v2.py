@@ -8,7 +8,8 @@ import sys
 import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
-from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
+#from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
+from WMH_loadT1Flair import WMHdataset # 3D MRI Scanned Dataset
 from conv3D import Conv3D_Tranpose1, MaxPool3D
 #import matplotlib.pyplot as plt
 import WMH_model3D # all model
@@ -33,25 +34,41 @@ if __name__ == '__main__':
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(splitRatio=1.0, shuffle=True)         # Take everything 100%
     X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
-    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    y_ph = tf.placeholder('uint8', [None, 83, 256, 256, 1])
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
-    y_ph2 = y_ph[:,:,:,:,0]
+    #y_ph_cat = y_ph[:,:,:,:,0]   # # Works for Softmax filter2
     
-    y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]
-    y_test_sb = (seq.test_fprop(X_ph))[:,:,:,:,1]
+    y_ph_cat = tf.one_hot(y_ph,3) # --> unstack into 3 categorical Tensor [?, 83, 256, 256, 1, 3]
+    y_ph_cat = tf.reduce_max(y_ph_cat, 4)   # --> collapse the extra 4th redundant dimension
+    
+    
+    # works for Label01 filter2
+    #y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]   # works! but change the reshape
+    #y_test_sb = (seq.test_fprop(X_ph))[:,:,:,:,1]       # works! maybe new variable
+
+    # for one hot
+    y_train_sb = (seq.train_fprop(X_ph))  
+    y_test_sb = (seq.test_fprop(X_ph))    
+    train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0.01
+    train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.6
+    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.49
+    train_cost_sb = tf.reduce_mean([train_cost_background,train_cost_label,train_cost_others])
+    valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )*0.01
+    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )*0.6
+    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )*0.49
+    test_cost_sb = tf.reduce_mean([valid_cost_background,valid_cost_label,valid_cost_others])  
 
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     #train_cost_sb = entropy(y_ph, y_train_sb)
 
-
-    train_cost_sb = 1 - smooth_iou(y_ph2, y_train_sb)
+    #train_cost_sb = 1 - smooth_iou(y_ph_cat, y_train_sb)          # Works for Softmax filter2
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
-    test_cost_sb = entropy(y_ph2, y_test_sb)
+    #test_cost_sb = entropy(y_ph_cat, y_test_sb)                   # Works for Softmax filter2
     #test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = iou(y_ph2, y_test_sb, threshold=0.2)
+    test_accu_sb = iou(y_ph_cat, y_test_sb, threshold=0.2)         # Works for Softmax filter2
 
     print('DONE')    
 
@@ -67,11 +84,10 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
 
-        
         dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
-        dataY[dataY ==2] = 0
+        #dataY[dataY ==2] = 0
         #######
         X_train = dataX[:split]
         X_test = dataX[split:]
@@ -79,6 +95,8 @@ if __name__ == '__main__':
         y_test = dataY[split:]
         dataX = [] # clearing memory
         dataY = [] # clearing memory
+        
+        
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
 
@@ -147,6 +165,23 @@ if __name__ == '__main__':
         np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
         
         
+        ### 3ND PREDICTION
+        #predictIndex = sys.argv[2] # input from terminal
+        predictIndex = str(1)
+        print('Prediction 3D Scan of No #'+predictIndex)        
+        intIndex = int(predictIndex)  
+        
+        feed_dict = {X_ph:X_test[intIndex].reshape((1,)+X_test[0].shape)}
+        mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
+
+        print('mask_outpt type')        
+        print(type(mask_output))
+        print(mask_output.shape)        
+        
+        np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
+        np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
+        np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
+        
         ### 2ND PREDICTION
         predictIndex = sys.argv[2] # input from terminal
         print('Prediction 3D Scan of No #'+predictIndex)        
@@ -161,5 +196,5 @@ if __name__ == '__main__':
         
         np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
         np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
-        np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
+        np.save('mask_output_'+predictIndex+'.npy',mask_output[0])        
         
