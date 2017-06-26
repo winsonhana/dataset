@@ -74,7 +74,8 @@ class WMHdataset():
         else: 
             return False
     
-    def InitDataset(self,split=1.0):
+    def InitDataset(self,splitRatio=1.0, shuffle=False):
+        np.random.seed(0) # set seed for reproducibility
         assert self.AbleToRetrieveData(), "not able to retrieve data from path."
         for i in self.institute:
             path_ = os.path.join(self.filepath,i)
@@ -82,8 +83,10 @@ class WMHdataset():
             listDir = [os.path.join(i,f) for f in listDir if os.path.exists(os.path.join(self.filepath,i,f,'pre'))]       
             self.listFolder = self.listFolder + listDir
         length_ = len(self.listFolder)
-        #sampleIndex = np.random.choice(range(length_),int(np.round(length_*split)),False)
-        sampleIndex = range(length_)[:int(np.round(length_*split))]
+        if shuffle == False:
+            sampleIndex = range(length_)[:int(np.round(length_*splitRatio))]
+        else:
+            sampleIndex = np.random.choice(range(length_),int(np.round(length_*splitRatio)),False)
         self.listTrain = [self.listFolder[i] for i in sampleIndex]
         self.listValid = [self.listFolder[i] for i in range(length_) if i not in sampleIndex]
 
