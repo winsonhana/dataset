@@ -90,7 +90,11 @@ if __name__ == '__main__':
         #dataY[dataY ==2] = 0
         #######
         X_train = dataX[:split]
+        X_train = X_train[:,:,:,:,1]
+        X_train = X_train.reshape(X_train.shape+(1,))
         X_test = dataX[split:]
+        X_test = X_test[:,:,:,:,1]
+        X_test = X_test.reshape(X_test.shape+(1,))
         y_train = dataY[:split]
         y_test = dataY[split:]
         dataX = [] # clearing memory
