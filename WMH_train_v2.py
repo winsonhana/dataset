@@ -36,7 +36,7 @@ if __name__ == '__main__':
     y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
-    y_ph = y_ph[:,:,:,:,0]
+    y_ph2 = y_ph[:,:,:,:,0]
     
     y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]
     y_test_sb = (seq.test_fprop(X_ph))[:,:,:,:,1]
@@ -46,12 +46,12 @@ if __name__ == '__main__':
     #train_cost_sb = entropy(y_ph, y_train_sb)
 
 
-    train_cost_sb = 1 - smooth_iou(y_ph, y_train_sb)
+    train_cost_sb = 1 - smooth_iou(y_ph2, y_train_sb)
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
-    test_cost_sb = entropy(y_ph, y_test_sb)
+    test_cost_sb = entropy(y_ph2, y_test_sb)
     #test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = iou(y_ph, y_test_sb, threshold=0.2)
+    test_accu_sb = iou(y_ph2, y_test_sb, threshold=0.2)
 
     print('DONE')    
 
