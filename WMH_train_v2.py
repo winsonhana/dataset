@@ -49,9 +49,11 @@ if __name__ == '__main__':
     train_cost_sb = 1 - smooth_iou(y_ph, y_train_sb[:,:,:,:,1])
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
-    test_cost_sb = entropy(y_ph, y_test_sb)
-    test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = iou(y_ph, y_test_sb, threshold=0.2)
+    #test_cost_sb = entropy(y_ph, y_test_sb)
+    test_cost_sb = entropy(y_ph, y_test_sb[:,:,:,:,1])
+    #test_accu_sb = accuracy(y_ph, y_test_sb)
+    #test_accu_sb = iou(y_ph, y_test_sb, threshold=0.2)
+    test_accu_sb = iou(y_ph, y_test_sb[:,:,:,:,1], threshold=0.2)
 
     print('DONE')    
 
