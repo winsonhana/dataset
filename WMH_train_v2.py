@@ -53,11 +53,11 @@ if __name__ == '__main__':
     train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0.01
     train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.6
     train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.49
-    train_cost_sb = tf.reduce_mean([train_cost_background,train_cost_label,train_cost_others])
+    train_cost_sb = tf.reduce_sum([train_cost_background,train_cost_label,train_cost_others])
     valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )*0.01
     valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )*0.6
     valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )*0.49
-    test_cost_sb = tf.reduce_mean([valid_cost_background,valid_cost_label,valid_cost_others])  
+    test_cost_sb = tf.reduce_sum([valid_cost_background,valid_cost_label,valid_cost_others])  
 
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
@@ -169,7 +169,7 @@ if __name__ == '__main__':
         np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
         
         
-        ### 3ND PREDICTION
+        ### 2ND PREDICTION
         #predictIndex = sys.argv[2] # input from terminal
         predictIndex = str(1)
         print('Prediction 3D Scan of No #'+predictIndex)        
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
         np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
         
-        ### 2ND PREDICTION
+        ### 3RD PREDICTION
         predictIndex = sys.argv[2] # input from terminal
         print('Prediction 3D Scan of No #'+predictIndex)        
         intIndex = int(predictIndex)  
