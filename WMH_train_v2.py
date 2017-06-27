@@ -71,7 +71,7 @@ if __name__ == '__main__':
     test_accu_sb = iou(y_ph_cat, y_test_sb, threshold=0.2)         # Works for Softmax filter2
 
     print('DONE')    
-
+    
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
     
     # model Saver

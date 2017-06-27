@@ -51,6 +51,10 @@ def model3D(img=(83, 256, 256)):
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=3, output_shape=img, kernel_size=(3,3,3), stride=(2,2,2), padding='SAME'))
+        ##        
+        seq.add(RELU())        
+        seq.add(Conv3D_Tranpose1(input_channels=3, num_filters=3, output_shape=img, kernel_size=(3,3,3), stride=(1,1,1), padding='SAME'))       
+        ##
         seq.add(Softmax())
         #seq.add(Sigmoid())
     return seq
