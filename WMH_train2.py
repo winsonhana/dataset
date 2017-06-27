@@ -160,9 +160,9 @@ if __name__ == '__main__':
         print(type(mask_output))
         print(mask_output.shape)        
         
-        np.save('X_test_'+intIndex+'.npy',X_test[intIndex])
-        np.save('y_test_'+intIndex+'.npy',y_test[intIndex])
-        np.save('mask_output_'+intIndex+'.npy',mask_output[0])
+        np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
+        np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
+        np.save('mask_output_'+predictIndex+'.npy',mask_output[0])
         
         
         ####### Plotting
@@ -176,6 +176,9 @@ if __name__ == '__main__':
 #        imsave('training_pic.png',y_test[6,48,:,:,0])        
 #        imsave('training_pic2.png',imageTOP)        
         
+
+    
+
 
 #        print('predict Object %d of cross-section :' % predictIndex, (slice))
 #        cmap_ = 'CMRmap'
