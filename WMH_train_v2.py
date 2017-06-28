@@ -17,9 +17,12 @@ from scipy.misc import imsave
 import numpy as np
 
 if __name__ == '__main__':
-
-    learning_rate = 0.001
     
+    print(sys.argv[0]) # input from terminal
+    print(sys.argv[1]) # input from terminal
+    print(sys.argv[2]) # input from terminal
+    
+    learning_rate = 0.001
     
     max_epoch = 100
     es = tg.EarlyStopper(max_epoch=max_epoch,
