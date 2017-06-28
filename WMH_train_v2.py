@@ -18,10 +18,8 @@ import numpy as np
 
 if __name__ == '__main__':
 
-
     learning_rate = 0.001
-    batchsize = 6
-    split = 48 # Train Valid Split
+    
     
     max_epoch = 100
     es = tg.EarlyStopper(max_epoch=max_epoch,
@@ -84,26 +82,37 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
 
-        dataX, dataY = dataset.NextBatch3D(60) # Take everything
+        #batchsize = 6
+        #split = 48 # Train Valid Split
+        #dataX, dataY = dataset.NextBatch3D(60) # Take everything
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         #dataY[dataY ==2] = 0
         #######
-        X_train = dataX[:split]
-        X_train = X_train[:,:,:,:,1]
-        X_train = X_train.reshape(X_train.shape+(1,))
-        X_test = dataX[split:]
-        X_test = X_test[:,:,:,:,1]
-        X_test = X_test.reshape(X_test.shape+(1,))
-        y_train = dataY[:split]
-        y_test = dataY[split:]
-        dataX = [] # clearing memory
-        dataY = [] # clearing memory
+        #X_train = dataX[:split]
+        #X_train = X_train[:,:,:,:,1]
+        #X_train = X_train.reshape(X_train.shape+(1,))
+        #X_test = dataX[split:]
+        #X_test = X_test[:,:,:,:,1]
+        #X_test = X_test.reshape(X_test.shape+(1,))
+        #y_train = dataY[:split]
+        #y_test = dataY[split:]
         
+        dataset.InitDataset(splitRatio=0.80, shuffle=True)  # Take everything 100%
         
+        batchsize = 3  # size=3
+        #######
+        # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
+        # dataY[dataY ==2] = 0
+        #######
+#        X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
+#        X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
+        X_train, y_train = dataset.NextBatch3D(6,dataset='train')
+        X_test, y_test = dataset.NextBatch3D(6,dataset='validation')
+
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
-
+        
         best_valid_accu = 0
         for epoch in range(max_epoch):
             print('epoch:', epoch)
@@ -171,7 +180,7 @@ if __name__ == '__main__':
         
         ### 2ND PREDICTION
         #predictIndex = sys.argv[2] # input from terminal
-        predictIndex = str(1)
+        predictIndex = str(2)
         print('Prediction 3D Scan of No #'+predictIndex)        
         intIndex = int(predictIndex)  
         
