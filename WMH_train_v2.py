@@ -100,7 +100,7 @@ if __name__ == '__main__':
         
         dataset.InitDataset(splitRatio=0.80, shuffle=True)  # Take everything 100%
         
-        batchsize = 3  # size=3
+        batchsize = 5  # size=3
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         #X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
         #X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
         X_train, y_train = dataset.NextBatch3D(45,dataset='train')
-        X_test, y_test = dataset.NextBatch3D(10,dataset='validation')
+        X_test, y_test = dataset.NextBatch3D(12,dataset='validation')
         
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
