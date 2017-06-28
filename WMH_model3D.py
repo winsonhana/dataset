@@ -43,7 +43,7 @@ def model3D(img=(83, 256, 256)):
         layerSize1 = updateConvLayerSize(img,poolStride)
         #print("layer1: "+str(layerSize1))
         seq.add(RELU())
-        seq.add(Conv3D(input_channels=10, num_filters=20 kernel_size=(3,3,3), stride=convStride, padding='SAME'))
+        seq.add(Conv3D(input_channels=10, num_filters=20, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(TFBatchNormalization(name='b2'))
         #layerSize2 = updateConvLayerSize(layerSize1,convStride)
         #print("layer1: "+str(layerSize2))
