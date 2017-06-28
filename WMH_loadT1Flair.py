@@ -9,7 +9,7 @@ import os
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import numpy as np
-
+from scipy.ndimage.interpolation import rotate
 
 
 
@@ -97,21 +97,35 @@ class WMHdataset():
         h1 = int(np.ceil((dim[2]-dataShape[2])/2.0))
         h2 = int(np.floor((dim[2]-dataShape[2])/2.0))
         return np.pad(x,[[d1,d2],[w1,w2],[h1,h2]],'constant')
-            
+    
+    def RotateTopAxis(self,data,angle):
+        return rotate(data,angle, axes=(1,2) , reshape=False )
+    
+    
     def NextBatch3D(self,batchSize,dataset='train',subfolder='pre'):
         batchPath_ = self.nextBatch(batchSize,dataset)
         fullPathsFlair_ = [os.path.join(self.filepath,i,subfolder,'FLAIR.nii.gz') for i in batchPath_]
-        fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
+        #fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
         
         print('fetching '+dataset+' rawdata from drive')
         # maxValue = 3180.0
         maxValue = 1.0
-        dataT1_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsT1_]
+        #dataT1_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsT1_]
         dataFl_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsFlair_]  
-        dataX_ = np.stack((dataT1_,dataFl_),axis=-1) # merge into 2 channels
-        # dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
-        dataY_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
+        #dataX_ = np.stack((dataT1_,dataFl_),axis=-1) # merge into 2 channels
+        dataX_ = []  
+        for i in dataFl_:
+            dataX_.append(i)
+            dataX_.append(self.RotateTopAxis(i,10))
+            dataX_.append(self.RotateTopAxis(i,-10))
+        dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
+        dataLabel_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
+        dataY_ = []
+        for i in dataLabel_:
+            dataY_.append(i)
+            dataY_.append(self.RotateTopAxis(i,10))
+            dataY_.append(self.RotateTopAxis(i,-10))
         dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
         print('retrieved rawdata from drive')
         return dataX_, dataY_
@@ -139,6 +153,7 @@ class WMHdataset():
         plt.title('Flair Original')
         plt.tight_layout()
         
+    
         
 ###     
 #DLpath2 = '/Users/winsoncws/Hana/WMH/' 
