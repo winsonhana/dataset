@@ -114,19 +114,26 @@ class WMHdataset():
         #dataT1_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsT1_]
         dataFl_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsFlair_]  
         #dataX_ = np.stack((dataT1_,dataFl_),axis=-1) # merge into 2 channels
-        dataX_ = []  
-        for i in dataFl_:
-            dataX_.append(i)
-            dataX_.append(self.RotateTopAxis(i,10))
-            dataX_.append(self.RotateTopAxis(i,-10))
-        dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
+        if dataset == 'train':
+            dataX_ = []  
+            for i in dataFl_:
+                dataX_.append(i)
+                dataX_.append(self.RotateTopAxis(i,10))
+                dataX_.append(self.RotateTopAxis(i,-10))
+            dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
+        else:
+            dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataFl_])
         dataLabel_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
         dataY_ = []
-        for i in dataLabel_:
-            dataY_.append(i)
-            dataY_.append(self.RotateTopAxis(i,10))
-            dataY_.append(self.RotateTopAxis(i,-10))
-        dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
+        if dataset == 'train':
+            dataY_ = []  
+            for i in dataLabel_:
+                dataY_.append(i)
+                dataY_.append(self.RotateTopAxis(i,10))
+                dataY_.append(self.RotateTopAxis(i,-10))
+            dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
+        else:
+            dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataLabel_])
         print('retrieved rawdata from drive')
         return dataX_, dataY_
 
