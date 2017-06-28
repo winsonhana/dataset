@@ -105,10 +105,8 @@ if __name__ == '__main__':
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-#        X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
-#        X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
-        X_train, y_train = dataset.NextBatch3D(6,dataset='train')
-        X_test, y_test = dataset.NextBatch3D(6,dataset='validation')
+        X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
+        X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
 
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
