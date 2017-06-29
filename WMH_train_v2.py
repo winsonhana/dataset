@@ -52,14 +52,14 @@ if __name__ == '__main__':
     y_train_sb = (seq.train_fprop(X_ph))  
     y_test_sb = (seq.test_fprop(X_ph))   
     print('TRAINED')
-    train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0.001
+    train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0.00001
     train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.5
-    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.499
+    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.4999
     train_cost_sb = tf.reduce_sum([train_cost_background,train_cost_label,train_cost_others])
     valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )
     valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )
     valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )
-    test_cost_sb = tf.reduce_sum([valid_cost_background *0.001, valid_cost_label *0.5,valid_cost_others *0.499])  
+    test_cost_sb = tf.reduce_sum([valid_cost_background *0.00001, valid_cost_label *0.5,valid_cost_others *0.4999])  
 
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)

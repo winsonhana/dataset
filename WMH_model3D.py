@@ -123,7 +123,7 @@ def model3D_Residual(img=(83, 256, 256)):
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=3, output_shape=img, kernel_size=kernelSize, stride=poolStride, padding='SAME'))
         ##        
         seq.add(RELU())        
-        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(1,1,1), stride=convStride, padding='SAME'))        
+        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
         ##  
         seq.add(Softmax())
     return seq

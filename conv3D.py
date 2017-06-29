@@ -67,7 +67,7 @@ class Conv3D_Tranpose1():
 ##################################
 class Residual3D():
 
-    def __init__(self, input, num_blocks, kernel=(5,5,5)):
+    def __init__(self, input, num_blocks, kernel=(3,3,3)):
         self.num_blocks = num_blocks
         self.input = input
         self.kernel = kernel
