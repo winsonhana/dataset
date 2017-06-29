@@ -16,7 +16,7 @@ import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 from math import ceil
 from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
-from conv3D import Conv3D_Tranpose1, MaxPool3D, SoftMaxMultiDim, Residual3D
+from conv3D import Conv3D_Tranpose1, MaxPool3D, SoftMaxMultiDim, Residual3D, InceptionResnet_3D
 
 
 
@@ -97,13 +97,13 @@ def model3D_Residual(img=(83, 256, 256)):
         poolStride = (2,2,2)
         kernelSize = (3,3,3)
         
-        seq.add(Conv3D(input_channels=1, num_filters=8, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
+        seq.add(Conv3D(input_channels=1, num_filters=8, kernel_size=(5,5,5), stride=convStride, padding='SAME'))        
         #seq.add(TFBatchNormalization(name='b1'))
         seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
         layerSize1 = updateConvLayerSize(img,poolStride)    
         seq.add(RELU())
         
-        #seq.add(Residual3D(input=8,num_blocks=3,kernel=kernelSize))
+        seq.add(Residual3D(input=8,num_blocks=3,kernel=kernelSize))
         
         seq.add(Conv3D(input_channels=8, num_filters=16, kernel_size=kernelSize, stride=convStride, padding='SAME'))
         #seq.add(TFBatchNormalization(name='b2'))
@@ -111,11 +111,11 @@ def model3D_Residual(img=(83, 256, 256)):
         layerSize2 = updateConvLayerSize(layerSize1,poolStride)
         seq.add(RELU())
         
-        #seq.add(Residual3D(input=20,num_blocks=3,kernel=kernelSize))
+        seq.add(Residual3D(input=16,num_blocks=3,kernel=kernelSize))
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=16, output_shape=layerSize2, kernel_size=kernelSize, stride=convStride, padding='SAME'))
         seq.add(RELU())
         
-        #seq.add(Residual3D(input=16,num_blocks=3,kernel=kernelSize))        
+        seq.add(Residual3D(input=16,num_blocks=3,kernel=kernelSize))        
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=kernelSize, stride=poolStride, padding='SAME'))
         seq.add(RELU())
         
@@ -123,7 +123,47 @@ def model3D_Residual(img=(83, 256, 256)):
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=3, output_shape=img, kernel_size=kernelSize, stride=poolStride, padding='SAME'))
         ##        
         seq.add(RELU())        
-        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
+        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(1,1,1), stride=convStride, padding='SAME'))        
+        ##  
+        seq.add(Softmax())
+    return seq
+    
+    
+
+def model_Inception_Resnet(img=(83, 256, 256)):
+    with tf.name_scope('WMH'):
+        seq = tg.Sequential()
+        convStride = (1,1,1)
+        poolStride = (2,2,2)
+        kernelSize = (3,3,3)
+        
+        seq.add(Conv3D(input_channels=1, num_filters=8, kernel_size=(5,5,5), stride=convStride, padding='SAME'))        
+        #seq.add(TFBatchNormalization(name='b1'))
+        seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
+        layerSize1 = updateConvLayerSize(img,poolStride)    
+        seq.add(RELU())
+        
+        seq.add(InceptionResnet_3D(8, type='v2_out8'))
+        
+        seq.add(Conv3D(input_channels=8, num_filters=16, kernel_size=kernelSize, stride=convStride, padding='SAME'))
+        #seq.add(TFBatchNormalization(name='b2'))
+        seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
+        layerSize2 = updateConvLayerSize(layerSize1,poolStride)
+        seq.add(RELU())
+        
+        seq.add(InceptionResnet_3D(16, type='v1_out16'))
+        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=16, output_shape=layerSize2, kernel_size=kernelSize, stride=convStride, padding='SAME'))
+        seq.add(RELU())
+        
+        seq.add(InceptionResnet_3D(16, type='v1_out16'))    
+        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=kernelSize, stride=poolStride, padding='SAME'))
+        seq.add(RELU())
+        
+        # num_filter=3 --> Background, WhiteMatter, Others
+        seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=3, output_shape=img, kernel_size=kernelSize, stride=poolStride, padding='SAME'))
+        ##        
+        seq.add(RELU())        
+        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(1,1,1), stride=convStride, padding='SAME'))        
         ##  
         seq.add(Softmax())
     return seq

@@ -118,8 +118,8 @@ class WMHdataset():
             dataX_ = []  
             for i in dataFl_:
                 dataX_.append(i)
-                dataX_.append(self.RotateTopAxis(i,10))
-                dataX_.append(self.RotateTopAxis(i,-10))
+                dataX_.append(self.RotateTopAxis(i,12))
+                dataX_.append(self.RotateTopAxis(i,-12))
             dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
         else:
             dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataFl_])
@@ -137,7 +137,9 @@ class WMHdataset():
         print('retrieved rawdata from drive')
         return dataX_, dataY_
 
-        
+    
+    
+    
     def showImages(self,scan=13,slice=13, cmap_='CMRmap'):
         path_ = self.listFolder[scan]
         path_ = os.path.join(self.filepath,path_) 

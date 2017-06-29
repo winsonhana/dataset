@@ -23,8 +23,7 @@ class SoftMaxMultiDim():
     def _test_fprop(self, state_below):
         return self._train_fprop(self, state_below)
 
-
-
+######################################
 class Conv3D_Tranpose1():
     def __init__(self, input_channels, num_filters, output_shape, kernel_size=(3,3,3), stride=(1,1,1),
                  filter=None, b=None, padding='VALID'):
@@ -65,8 +64,7 @@ class Conv3D_Tranpose1():
     def _variables(self):
         return [self.filter, self.b]
 
-
-##############################
+##################################
 class Residual3D():
 
     def __init__(self, input, num_blocks, kernel=(5,5,5)):
@@ -91,7 +89,6 @@ class Residual3D():
             tf.nn.relu(state_below)     # RELU after adding residual block
         return state_below
 
-
     def _test_fprop(self, state_below):
         for block in self.blocks:
             out = state_below
@@ -100,6 +97,67 @@ class Residual3D():
             state_below = out + state_below
             tf.nn.relu(state_below)     # RELU after adding residual block
         return state_below
+
+
+###############################
+class InceptionResnet_3D():
+    inception = {}
+
+    def __inc_v1(self,input):
+        ## create inception_v1 : 1x1 3x3
+        blocks = {}
+        layers = []
+        layers.append(Conv3D(input_channels=input, num_filters=8,
+                             kernel_size=(1,1,1), stride=(1,1,1), padding='SAME'))
+        layers.append(Conv3D(input_channels=8, num_filters=8,
+                             kernel_size=(1,1,1), stride=(1,1,1), padding='SAME'))
+        blocks['1x1'] = layers
+        layers = []
+        layers.append(Conv3D(input_channels=input, num_filters=8,
+                             kernel_size=(3,3,3), stride=(1,1,1), padding='SAME'))
+        layers.append(Conv3D(input_channels=8, num_filters=8,
+                             kernel_size=(3,3,3), stride=(1,1,1), padding='SAME'))
+        blocks['3x3'] = layers
+        return blocks
+        
+    def __inc_v2(self,input):
+        ## create inception_v2 : 3x3 5x5
+        blocks = {}
+        layers = []
+        layers.append(Conv3D(input_channels=input, num_filters=4,
+                             kernel_size=(3,3,3), stride=(1,1,1), padding='SAME'))
+        layers.append(Conv3D(input_channels=4, num_filters=4,
+                             kernel_size=(3,3,3), stride=(1,1,1), padding='SAME'))
+        blocks['3x3'] = layers
+        layers = []
+        layers.append(Conv3D(input_channels=input, num_filters=4,
+                             kernel_size=(5,5,5), stride=(1,1,1), padding='SAME'))
+        layers.append(Conv3D(input_channels=4, num_filters=4,
+                             kernel_size=(5,5,5), stride=(1,1,1), padding='SAME'))
+        blocks['5x5'] = layers
+        return blocks
+
+    inception_type = {'v1_out16':__inc_v1, 'v2_out8':__inc_v2} 
+    
+    def __init__(self, input, type='v1'): 
+        self.inception = self.inception_type[type](self, input)
+    
+    def _train_fprop(self, state_below):
+        outputs = []
+        for block in self.inception:
+            out = state_below
+            for layer in self.inception[block]:
+                out = layer._train_fprop(out)
+            #out = tf.add(out,state_below)
+            outputs.append(out)
+        return tf.concat(outputs, axis=-1)
+            
+            
+    def _test_fprop(self, state_below):
+        return self._train_fprop(state_below)
+
+
+
 
 ###############################
 class MaxPool3D():
@@ -120,6 +178,8 @@ class MaxPool3D():
         
 
 
+#####################
+# To be discard
 #####################
 def _residual(self, x, in_filter, out_filter, stride, activate_before_residual=False):
     """Residual unit with 2 sub layers."""

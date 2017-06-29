@@ -18,9 +18,9 @@ import numpy as np
 
 if __name__ == '__main__':
     
-    print(sys.argv[0]) # input from terminal
-    print(sys.argv[1]) # input from terminal
-    print(sys.argv[2]) # input from terminal
+    #print(sys.argv[0]) # input from terminal
+    #print(sys.argv[1]) # input from terminal
+    #print(sys.argv[2]) # input from terminal
     
     learning_rate = 0.001
     
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(splitRatio=1.0, shuffle=True)         # Take everything 100%
-    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])
+    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])  #float32
     y_ph = tf.placeholder('uint8', [None, 83, 256, 256, 1])
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
@@ -47,17 +47,18 @@ if __name__ == '__main__':
     # works for Label01 filter2
     #y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]   # works! but change the reshape
     #y_test_sb = (seq.test_fprop(X_ph))[:,:,:,:,1]       # works! maybe new variable
-
+    print('TRAINING')
     # for one hot
     y_train_sb = (seq.train_fprop(X_ph))  
-    y_test_sb = (seq.test_fprop(X_ph))    
-    train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0.01
-    train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.6
-    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.49
+    y_test_sb = (seq.test_fprop(X_ph))   
+    print('TRAINED')
+    train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0.001
+    train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.5
+    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.499
     train_cost_sb = tf.reduce_sum([train_cost_background,train_cost_label,train_cost_others])
-    valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )*0.01
-    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )*0.6
-    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )*0.49
+    valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )*0.001
+    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )*0.5
+    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )*0.499
     test_cost_sb = tf.reduce_sum([valid_cost_background,valid_cost_label,valid_cost_others])  
 
     #### COST FUNCTION
@@ -101,7 +102,7 @@ if __name__ == '__main__':
         #y_train = dataY[:split]
         #y_test = dataY[split:]
         
-        dataset.InitDataset(splitRatio=0.80, shuffle=True)  # Take everything 100%
+        dataset.InitDataset(splitRatio=1.0, shuffle=True)  # Take everything 100%
         
         batchsize = 5  # size=3
         #######
