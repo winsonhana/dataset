@@ -102,7 +102,7 @@ if __name__ == '__main__':
         #y_train = dataY[:split]
         #y_test = dataY[split:]
         
-        dataset.InitDataset(splitRatio=1.0, shuffle=True)  # Take everything 100%
+        dataset.InitDataset(splitRatio=0.8, shuffle=True)  # Take everything 80% Train 20% Validation
         
         batchsize = 5  # size=3
         #######
