@@ -56,10 +56,10 @@ if __name__ == '__main__':
     train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.5
     train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.499
     train_cost_sb = tf.reduce_sum([train_cost_background,train_cost_label,train_cost_others])
-    valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )*0.001
-    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )*0.5
-    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )*0.499
-    test_cost_sb = tf.reduce_sum([valid_cost_background,valid_cost_label,valid_cost_others])  
+    valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )
+    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )
+    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )
+    test_cost_sb = tf.reduce_sum([valid_cost_background *0.001, valid_cost_label *0.5,valid_cost_others *0.499])  
 
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     #test_cost_sb = entropy(y_ph_cat, y_test_sb)                   # Works for Softmax filter2
     #test_accu_sb = accuracy(y_ph, y_test_sb)
-    test_accu_sb = iou(y_ph_cat, y_test_sb, threshold=0.2)         # Works for Softmax filter2
+    test_accu_sb = iou(y_ph_cat, y_test_sb, threshold=0.5)         # Works for Softmax filter2
 
     print('DONE')    
     
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         #######
         #X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
         #X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
-        X_train, y_train = dataset.NextBatch3D(45,dataset='train')
+        X_train, y_train = dataset.NextBatch3D(48,dataset='train')
         X_test, y_test = dataset.NextBatch3D(12,dataset='validation')
         
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
@@ -135,21 +135,37 @@ if __name__ == '__main__':
 
             ttl_valid_cost = 0
             ttl_valid_accu = 0
+            tt_valid_0 = 0
+            tt_valid_1 = 0
+            tt_valid_2 = 0
             ttl_examples = 0
             pbar = tg.ProgressBar(len(iter_test))
             print('..validating')
             for X_batch, y_batch in iter_test:
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
-                valid_cost, valid_accu = sess.run([test_cost_sb, test_accu_sb] , feed_dict=feed_dict)
+                valid_cost, valid_accu, valid_0, valid_1, valid_2 = sess.run([test_cost_sb, test_accu_sb, valid_cost_background,
+                                                                     valid_cost_label, valid_cost_others],
+                                                                     feed_dict=feed_dict)
                 #mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
                 ttl_valid_cost += len(X_batch) * valid_cost
                 ttl_valid_accu += len(X_batch) * valid_accu
+                tt_valid_0 += len(X_batch) * valid_0
+                tt_valid_1 += len(X_batch) * valid_1
+                tt_valid_2 += len(X_batch) * valid_2
                 ttl_examples += len(X_batch)
                 pbar.update(ttl_examples)
             mean_valid_cost = ttl_valid_cost/float(ttl_examples)
             mean_valid_accu = ttl_valid_accu/float(ttl_examples)
-            print('\nvalid cost', mean_valid_cost)
+            mean_valid_0 = tt_valid_0/float(ttl_examples)
+            mean_valid_1 = tt_valid_1/float(ttl_examples)
+            mean_valid_2 = tt_valid_2/float(ttl_examples)
+            print('\nvalid average cost', mean_valid_cost)
+            print('valid background', mean_valid_0)
+            print('valid WMH', mean_valid_1)
+            print('valid others', mean_valid_2)
             print('valid accu', mean_valid_accu)
+            
+            
             if best_valid_accu < mean_valid_accu:
                 best_valid_accu = mean_valid_accu
 
