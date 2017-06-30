@@ -31,13 +31,13 @@ def updateConvLayerSize(dataDimension,stride):
 
 
 
-
+#def model3D(img=(None, None, None)):
 def model3D(img=(83, 256, 256)):
     with tf.name_scope('WMH'):
         seq = tg.Sequential()
         convStride = (1,1,1)
         poolStride = (2,2,2)
-        seq.add(Conv3D(input_channels=1, num_filters=10, kernel_size=(5,5,5), stride=convStride, padding='SAME'))        
+        seq.add(Conv3D(input_channels=1, num_filters=10, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
         seq.add(TFBatchNormalization(name='b1'))
         seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
         layerSize1 = updateConvLayerSize(img,poolStride)

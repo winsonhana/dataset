@@ -113,6 +113,7 @@ class WMHdataset():
         maxValue = 1.0
         #dataT1_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsT1_]
         dataFl_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsFlair_]  
+        #dataFl_ = [sitk.GetArrayFromImage(sitk.ReadImage(i))/maxValue for i in fullPathsFlair_]  
         #dataX_ = np.stack((dataT1_,dataFl_),axis=-1) # merge into 2 channels
         if dataset == 'train':
             dataX_ = []  
