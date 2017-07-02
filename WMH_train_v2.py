@@ -30,7 +30,7 @@ if __name__ == '__main__':
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_Residual()
+    seq = WMH_model3D.model3D_ResidualDeeper()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(splitRatio=1.0, shuffle=True)         # Take everything 100%
@@ -52,16 +52,16 @@ if __name__ == '__main__':
     y_train_sb = (seq.train_fprop(X_ph))  
     y_test_sb = (seq.test_fprop(X_ph))   
     print('TRAINED')
-    train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
-    train_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )*0.5
-    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )*0.5
-    train_cost_sb = tf.reduce_sum([train_cost_label,train_cost_others])
-    valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )
-    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )
-    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )
-    test_cost_sb = tf.reduce_sum([valid_cost_label *0.5,valid_cost_others *0.5])  
+    train_cost_background = tf.subtract(1 , smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
+    train_cost_label = tf.subtract(1 , smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )
+    train_cost_others = tf.subtract(1 , smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )
+    train_cost_sb = tf.reduce_mean([train_cost_label,train_cost_others])
+    valid_cost_background = tf.subtract(1 , smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )
+    valid_cost_label = tf.subtract(1 , smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )
+    valid_cost_others = tf.subtract(1 , smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,2]) )
+    test_cost_sb = tf.reduce_mean([valid_cost_label,valid_cost_others])  
     
-    
+
     #### COST FUNCTION
     #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
     #train_cost_sb = entropy(y_ph, y_train_sb)
@@ -81,11 +81,12 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     
     
-    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.94)
+    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.97)
     with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         print("INITIALIZE SESSION")
+        
 
         #batchsize = 6
         #split = 48 # Train Valid Split
