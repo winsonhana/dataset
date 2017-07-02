@@ -161,9 +161,9 @@ if __name__ == '__main__':
             mean_valid_1 = tt_valid_1/float(ttl_examples)
             mean_valid_2 = tt_valid_2/float(ttl_examples)
             print('\nvalid average cost', mean_valid_cost)
-            print('valid background', mean_valid_0)
+            print('valid Background', mean_valid_0)
             print('valid WMH', mean_valid_1)
-            print('valid others', mean_valid_2)
+            print('valid Others', mean_valid_2)
             print('valid accu', mean_valid_accu)
             
             

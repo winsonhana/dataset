@@ -11,6 +11,9 @@ from __future__ import division, print_function, absolute_import
 from tensorgraph.layers import Conv3D, Conv2D, RELU, MaxPooling, LRN, Tanh, Dropout, \
                                Softmax, Flatten, Linear, TFBatchNormalization, Sigmoid
 from tensorgraph.utils import same
+from tensorgraph.node import StartNode, HiddenNode, EndNode
+from tensorgraph.graph import Graph
+from tensorgraph.layers.merge import Concat, Mean, Sum
 import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
@@ -120,10 +123,12 @@ def model3D_Residual(img=(83, 256, 256)):
         seq.add(RELU())
         
         # num_filter=3 --> Background, WhiteMatter, Others
+        seq.add(Conv3D(input_channels=8, num_filters=8, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=3, output_shape=img, kernel_size=kernelSize, stride=poolStride, padding='SAME'))
         ##        
         seq.add(RELU())        
-        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
+        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(1,1,1), stride=convStride, padding='SAME'))        
+        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(1,1,1), stride=convStride, padding='SAME'))        
         ##  
         seq.add(Softmax())
     return seq
@@ -167,3 +172,17 @@ def model_Inception_Resnet(img=(83, 256, 256)):
         ##  
         seq.add(Softmax())
     return seq
+    
+    
+def VNet(img=(83, 256, 256)):
+    with tf.name_scope('WMH'):
+        seq = tg.Sequential()
+        convStride = (1,1,1)
+        poolStride = (2,2,2)
+        kSize3 = (3,3,3)
+        kSize5 = (5,5,5)
+        seq.add(Conv3D(input_channels=1, num_filters=16, kernel_size=kSize5, stride=convStride, padding='SAME'))        
+        
+        
+        
+        

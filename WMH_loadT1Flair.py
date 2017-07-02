@@ -116,7 +116,7 @@ class WMHdataset():
         #dataFl_ = [sitk.GetArrayFromImage(sitk.ReadImage(i))/maxValue for i in fullPathsFlair_]  
         #dataX_ = np.stack((dataT1_,dataFl_),axis=-1) # merge into 2 channels
         if dataset == 'train':
-            dataX_ = []  
+            dataX_ = []
             for i in dataFl_:
                 dataX_.append(i)
                 dataX_.append(self.RotateTopAxis(i,12))
@@ -138,7 +138,6 @@ class WMHdataset():
         print('retrieved rawdata from drive')
         return dataX_, dataY_
 
-    
     
     
     def showImages(self,scan=13,slice=13, cmap_='CMRmap'):
