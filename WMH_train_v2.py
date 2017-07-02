@@ -30,7 +30,7 @@ if __name__ == '__main__':
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_ResidualDeeper()
+    seq = WMH_model3D.model3D_2()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(splitRatio=1.0, shuffle=True)         # Take everything 100%
