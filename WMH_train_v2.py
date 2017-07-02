@@ -54,7 +54,7 @@ if __name__ == '__main__':
     print('TRAINED')
     train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
     train_cost_label =  (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,1]) )
-    train_cost_others = tf.subtract(1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )
+    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,2]) )
     train_cost_sb = tf.reduce_mean([train_cost_label,train_cost_others])
     valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )
     valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,1]) )
