@@ -106,7 +106,7 @@ if __name__ == '__main__':
         
         dataset.InitDataset(splitRatio=0.8, shuffle=True)  # Take everything 80% Train 20% Validation
         
-        batchsize = 6  # size=3
+        batchsize = 3  # size=3
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
