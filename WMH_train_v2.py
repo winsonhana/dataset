@@ -45,7 +45,7 @@ if __name__ == '__main__':
     y_ph_cat = y_ph_cat[:,:,:,:,0,:]
     #y_ph_cat = tf.reduce_max(y_ph_cat, 4)   # --> collapse the extra 4th redundant dimension
     
-    seq = WMH_model3D.model3D_2()  
+    seq = WMH_model3D.model3D()  
     
     # works for Label01 filter2
     #y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]   # works! but change the reshape
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        X_train, y_train = dataset.NextBatch3D(10,dataset='train')
+        X_train, y_train = dataset.NextBatch3D(5,dataset='train')
         X_test, y_test = dataset.NextBatch3D(4,dataset='validation')
         
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
