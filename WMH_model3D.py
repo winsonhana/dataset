@@ -258,6 +258,8 @@ class Testing():
     def _train_fprop(self, state_below):
         print("testing"+str(self.int))
         return state_below
+    def _test_fprop(self, state_below):
+        return self._train_fprop(state_below)
 
 def Residual_UNET(input, img=(84, 256, 256)):
     with tf.name_scope('WMH'):
@@ -279,12 +281,14 @@ def Residual_UNET(input, img=(84, 256, 256)):
         start = StartNode(input_vars=[input])
         
         Layer01 = [Conv3D(input_channels=1, num_filters=8, kernel_size=kSize3, stride=convStride, padding='SAME') ]
+        Layer01.append(RELU())        
         
         LayerPool = MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME')
         
         Layer02 = [LayerPool]
         #Layer02.append(Testing(1))
         Layer02.append(Conv3D(input_channels=8, num_filters=16, kernel_size=kSize3, stride=convStride, padding='SAME') )
+        Layer02.append(RELU())  
         #Layer02.append(Testing(2))        
         Layer02.append(ResidualBlock3D(16,'L02'))
         #Layer02.append(Testing(3))
@@ -292,9 +296,11 @@ def Residual_UNET(input, img=(84, 256, 256)):
         
         Layer03 = [LayerPool]
         Layer03.append(Conv3D(input_channels=16, num_filters=32, kernel_size=kSize3, stride=convStride, padding='SAME') )
+        Layer03.append(RELU())  
         Layer03.append(ResidualBlock3D(32,'L03'))
         #layerSize2 = updateConvLayerSize(layerSize1,poolStride)
         Layer03.append(Conv3D_Tranpose1(input_channels=32, num_filters=16, output_shape=layerSize1, kernel_size=kSize3, stride=poolStride, padding='SAME') )
+        Layer03.append(RELU())  
         
         #Layer04 = [Conv3D(input_channels=32, num_filters=64, kernel_size=kSize5, stride=convStride, padding='SAME')]
         #Layer04.append(ResidualBlock3D(64,'L03'))
@@ -308,6 +314,8 @@ def Residual_UNET(input, img=(84, 256, 256)):
         
         Layer04 = [ResidualBlock3D(16,'L04')]
         Layer04.append(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=img, kernel_size=kSize3, stride=poolStride, padding='SAME') )
+        Layer04.append(RELU())
+        Layer04.append(Testing(4))
         
         resBlock16_8 = HiddenNode(prev=[residualLong16], layers=Layer04)
         residualLong8 = HiddenNode(prev=[resBlock16_8,conv8], input_merge_mode=Sum())
