@@ -281,14 +281,14 @@ def Residual_UNET(input, img=(84, 256, 256)):
         start = StartNode(input_vars=[input])
         
         Layer01 = [Conv3D(input_channels=1, num_filters=8, kernel_size=kSize3, stride=convStride, padding='SAME') ]
-        Layer01.append(RELU())        
+        #Layer01.append(RELU())        
         
         LayerPool = MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME')
         
         Layer02 = [LayerPool]
         #Layer02.append(Testing(1))
         Layer02.append(Conv3D(input_channels=8, num_filters=16, kernel_size=kSize3, stride=convStride, padding='SAME') )
-        Layer02.append(RELU())  
+        #Layer02.append(RELU())  
         #Layer02.append(Testing(2))        
         Layer02.append(ResidualBlock3D(16,'L02'))
         #Layer02.append(Testing(3))
@@ -296,11 +296,11 @@ def Residual_UNET(input, img=(84, 256, 256)):
         
         Layer03 = [LayerPool]
         Layer03.append(Conv3D(input_channels=16, num_filters=32, kernel_size=kSize3, stride=convStride, padding='SAME') )
-        Layer03.append(RELU())  
+        #Layer03.append(RELU())  
         Layer03.append(ResidualBlock3D(32,'L03'))
         #layerSize2 = updateConvLayerSize(layerSize1,poolStride)
         Layer03.append(Conv3D_Tranpose1(input_channels=32, num_filters=16, output_shape=layerSize1, kernel_size=kSize3, stride=poolStride, padding='SAME') )
-        Layer03.append(RELU())  
+        #Layer03.append(RELU())  
         
         #Layer04 = [Conv3D(input_channels=32, num_filters=64, kernel_size=kSize5, stride=convStride, padding='SAME')]
         #Layer04.append(ResidualBlock3D(64,'L03'))
