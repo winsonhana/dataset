@@ -83,7 +83,7 @@ def model3D_2(img=(83, 256, 256)):
         seq.add(RELU())
         ## Extra Conv
         seq.add(Conv3D(input_channels=16, num_filters=16, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
-        #seq.add(TFBatchNormalization(name='b3'))
+        seq.add(TFBatchNormalization(name='b3'))
         
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
         seq.add(TFBatchNormalization(name='b4'))
