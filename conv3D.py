@@ -130,7 +130,7 @@ class ResidualBlock3D():
             for layer in self.layers:
                 out = layer._train_fprop(out)
             out = tf.add(out,state_below_)
-            state_below_ = tf.nn.relu(out)     # RELU after residual
+            state_below_ = tf.nn.relu(out)     # RELU after residual  
             #print(state_below_)
         return state_below_
 
