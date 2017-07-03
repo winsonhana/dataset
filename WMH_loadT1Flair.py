@@ -88,7 +88,7 @@ class WMHdataset():
             print(sitk.GetArrayFromImage(sitk.ReadImage(i)).shape)
 
         
-    def padding(self,x,dim=(83,256,256)):
+    def padding(self,x,dim=(84,256,256)):
         dataShape = x.shape
         d1 = int(np.ceil((dim[0]-dataShape[0])/2.0))
         d2 = int(np.floor((dim[0]-dataShape[0])/2.0))
@@ -184,8 +184,8 @@ class WMHdataset():
 
 # Utrecht   (48, 240, 240, 1)
 # Singapore (48, 256, 232, 1)
-# Amsterdam (83, 256, 132, 1)
-# MAX (83,256,240,1)
+# Amsterdam (84, 256, 132, 1)
+# MAX (84,256,240,1)
 
 
 #DLpath = '/Users/winsoncws/Downloads'

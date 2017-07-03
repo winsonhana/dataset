@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorgraph.layers import Conv3D, RELU
+from tensorgraph.layers import Conv3D, RELU, TFBatchNormalization
 
 class SoftMaxMultiDim():
     """Computes softmax activations for multidimensional Tensor
@@ -81,23 +81,69 @@ class Residual3D():
         #self.blocks.append([Conv3D(input_channels=self.input, num_filters=self.input, kernel_size=self.kernel, stride=(1,1,1), padding='SAME')])
 
     def _train_fprop(self, state_below):
+        state_below_ = state_below
         for block in self.blocks:
-            out = state_below
+            out = state_below_
             for layer in block:
                 out = layer._train_fprop(out)
-            state_below = out + state_below
-            tf.nn.relu(state_below)     # RELU after adding residual block
-        return state_below
-
+            out = tf.add(out , state_below_)
+            state_below_ = tf.nn.relu(out)     # RELU after residual
+        return state_below_
+    
     def _test_fprop(self, state_below):
+        state_below_ = state_below
         for block in self.blocks:
-            out = state_below
+            out = state_below_
             for layer in block:
                 out = layer._test_fprop(out)
-            state_below = out + state_below
-            tf.nn.relu(state_below)     # RELU after adding residual block
-        return state_below
+            out = tf.add(out , state_below_)
+            state_below_ = tf.nn.relu(out)     # RELU after residual
+        return state_below_
 
+#### A more Generic ResidualBlock ####
+class ResidualBlock3D():
+
+    def __init__(self, input, BN_name, kernel=(3,3,3), iterate=1):
+        self.layers = []
+        self.int_ = 0 
+        self.input = input
+        self.kernel = kernel
+        self.iterate = iterate
+        self.layers.append(Conv3D(input_channels=input, num_filters=input, kernel_size=kernel, stride=(1,1,1), padding='SAME'))
+        self.layers.append(TFBatchNormalization(BN_name+str(self.int_)))
+        self.int_ += 1
+        self.layers.append(RELU())
+        self.layers.append(Conv3D(input_channels=input, num_filters=input, kernel_size=kernel, stride=(1,1,1), padding='SAME'))
+        self.layers.append(TFBatchNormalization(BN_name+str(self.int_)))     
+        self.int_ += 1
+        
+    def addLayers(self,layer, increment=False):
+        self.layers.append(layer)
+        if increment == True:
+            self.int_ += 1
+
+    def _train_fprop(self, state_below):
+        state_below_ = state_below
+        #print('length of layer {}'.format(str(len(self.layers))))
+        for _ in range(self.iterate):
+            out = state_below_
+            for layer in self.layers:
+                out = layer._train_fprop(out)
+            out = tf.add(out,state_below_)
+            #print('added')
+            state_below_ = tf.nn.relu(out)     # RELU after residual
+            print(state_below_)
+        return state_below_
+
+    def _test_fprop(self, state_below):
+        state_below_ = state_below
+        for _ in range(self.iterate):
+            out = state_below_
+            for layer in self.layers:
+                out = layer._test_fprop(out)
+            out = tf.add(out,state_below_)
+            state_below_ = tf.nn.relu(out)     # RELU after residual
+        return state_below_
 
 ###############################
 class InceptionResnet_3D():
@@ -148,7 +194,7 @@ class InceptionResnet_3D():
             out = state_below
             for layer in self.inception[block]:
                 out = layer._train_fprop(out)
-            #out = tf.add(out,state_below)
+            out = tf.add(out,state_below)
             outputs.append(out)
         return tf.concat(outputs, axis=-1)
             

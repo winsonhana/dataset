@@ -15,12 +15,14 @@ from conv3D import Conv3D_Tranpose1, MaxPool3D
 import WMH_model3D # all model
 from scipy.misc import imsave
 import numpy as np
+from scipy.ndimage.interpolation import rotate
+
 
 if __name__ == '__main__':
     
-    print(sys.argv[0]) # input from terminal
-    print(sys.argv[1]) # input from terminal
-    print(sys.argv[2]) # input from terminal
+    #print(sys.argv[0]) # input from terminal
+    #print(sys.argv[1]) # input from terminal
+    #print(sys.argv[2]) # input from terminal
     
     learning_rate = 0.001
     
@@ -30,30 +32,34 @@ if __name__ == '__main__':
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_2()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(splitRatio=1.0, shuffle=True)         # Take everything 100%
-    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1])  #float32
-    y_ph = tf.placeholder('uint8', [None, 83, 256, 256, 1])
+    X_ph = tf.placeholder('float32', [None, 84, 256, 256, 1])  #float32
+    y_ph = tf.placeholder('uint8', [None, 84, 256, 256, 1])
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('uint8', [None, None, None, None, 1])
     #y_ph_cat = y_ph[:,:,:,:,0]   # # Works for Softmax filter2
     
-    y_ph_cat = tf.one_hot(y_ph,3) # --> unstack into 3 categorical Tensor [?, 83, 256, 256, 1, 3]
+    y_ph_cat = tf.one_hot(y_ph,3) # --> unstack into 3 categorical Tensor [?, 84, 256, 256, 1, 3]
     y_ph_cat = y_ph_cat[:,:,:,:,0,:]
     #y_ph_cat = tf.reduce_max(y_ph_cat, 4)   # --> collapse the extra 4th redundant dimension
+    
+    seq = WMH_model3D.Residual_UNET(X_ph)  
     
     # works for Label01 filter2
     #y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]   # works! but change the reshape
     #y_test_sb = (seq.test_fprop(X_ph))[:,:,:,:,1]       # works! maybe new variable
     print('TRAINING')
     # for one hot
-    y_train_sb = (seq.train_fprop(X_ph))  
-    y_test_sb = (seq.test_fprop(X_ph))   
+    #y_train_sb = (seq.train_fprop(X_ph))  
+    #y_test_sb = (seq.test_fprop(X_ph)) 
+    y_train_sb = (seq.train_fprop())[0][0]
+    y_test_sb = (seq.test_fprop())[0][0]
+    
     print('TRAINED')
     #train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
-    
+    print(y_train_sb)
     ### CHANGE TO 2 CHANNELS
     train_cost_label =  (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,0]) )
     train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,1]) )
@@ -64,16 +70,8 @@ if __name__ == '__main__':
     valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,1]) ) 
     test_cost_sb = tf.reduce_mean([valid_cost_label,valid_cost_others])  
     
-    #### COST FUNCTION
-    #train_cost_sb = tf.reduce_mean((y_ph - y_train_sb)**2)
-    #train_cost_sb = entropy(y_ph, y_train_sb)
-
-    #train_cost_sb = 1 - smooth_iou(y_ph_cat, y_train_sb)          # Works for Softmax filter2
-
-    #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
-    #test_cost_sb = entropy(y_ph_cat, y_test_sb)                   # Works for Softmax filter2
-    #test_accu_sb = accuracy(y_ph, y_test_sb)
     
+    # ACCURACY
     # CHANGE TO 2 CHANNELS    
     test_accu_sb = iou(y_ph_cat[:,:,:,:,1:], y_test_sb, threshold=0.5)         # Works for Softmax filter2
     
@@ -92,37 +90,22 @@ if __name__ == '__main__':
         sess.run(init)
         print("INITIALIZE SESSION")
         
-
-        #batchsize = 6
-        #split = 48 # Train Valid Split
-        #dataX, dataY = dataset.NextBatch3D(60) # Take everything
-        #######
-        # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
-        #dataY[dataY ==2] = 0
-        #######
-        #X_train = dataX[:split]
-        #X_train = X_train[:,:,:,:,1]
-        #X_train = X_train.reshape(X_train.shape+(1,))
-        #X_test = dataX[split:]
-        #X_test = X_test[:,:,:,:,1]
-        #X_test = X_test.reshape(X_test.shape+(1,))
-        #y_train = dataY[:split]
-        #y_test = dataY[split:]
         
         dataset.InitDataset(splitRatio=0.8, shuffle=True)  # Take everything 80% Train 20% Validation
         
-        batchsize = 6  # size=3
+        batchsize = 2  # size=3
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        #X_train, y_train = dataset.NextBatch3D(len(dataset.listTrain),dataset='train')
-        #X_test, y_test = dataset.NextBatch3D(len(dataset.listValid),dataset='validation')
         X_train, y_train = dataset.NextBatch3D(48,dataset='train')
         X_test, y_test = dataset.NextBatch3D(12,dataset='validation')
         
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
+        
+        def RotateTopAxis(self,data,angle):
+            return rotate(data,angle, axes=(1,2) , reshape=False )        
         
         best_valid_accu = 0
         for epoch in range(max_epoch):
@@ -132,6 +115,20 @@ if __name__ == '__main__':
             ttl_examples = 0
             print('..training')
             for X_batch, y_batch in iter_train:
+#                angle = 18
+#                dataX_ = []
+#                for i in X_batch:
+#                    dataX_.append(i)
+#                    dataX_.append(RotateTopAxis(i,angle))
+#                    dataX_.append(RotateTopAxis(i,-angle))
+#                X_batch = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
+#                dataY_ = []  
+#                for i in y_batch:
+#                    dataY_.append(i)
+#                    dataY_.append(RotateTopAxis(i,angle))
+#                    dataY_.append(RotateTopAxis(i,-angle))
+#                y_batch = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
+                
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
                 _, train_cost = sess.run([optimizer,train_cost_sb] , feed_dict=feed_dict)              
                 ttl_train_cost += len(X_batch) * train_cost

@@ -13,14 +13,14 @@ from tensorgraph.layers import Conv3D, Conv2D, RELU, MaxPooling, LRN, Tanh, Drop
 from tensorgraph.utils import same
 from tensorgraph.node import StartNode, HiddenNode, EndNode
 from tensorgraph.graph import Graph
-from tensorgraph.layers.merge import Concat, Mean, Sum
+from tensorgraph.layers.merge import Concat, Mean, Sum, NoChange
 import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 from math import ceil
 from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
-from conv3D import Conv3D_Tranpose1, MaxPool3D, SoftMaxMultiDim, Residual3D, InceptionResnet_3D
-
+from conv3D import Conv3D_Tranpose1, MaxPool3D, SoftMaxMultiDim, Residual3D, \
+InceptionResnet_3D, ResidualBlock3D
 
 
 ####
@@ -35,7 +35,7 @@ def updateConvLayerSize(dataDimension,stride):
 
 
 #def model3D(img=(None, None, None)):
-def model3D(img=(83, 256, 256)):
+def model3D(img=(84, 256, 256)):
     with tf.name_scope('WMH'):
         seq = tg.Sequential()
         convStride = (1,1,1)
@@ -63,7 +63,7 @@ def model3D(img=(83, 256, 256)):
     return seq
         
 
-def model3D_2(img=(83, 256, 256)):
+def model3D_2(img=(84, 256, 256)):
     with tf.name_scope('WMH_2Chan_Input'):
         seq = tg.Sequential()
         convStride = (1,1,1)
@@ -108,7 +108,7 @@ def model3D_2(img=(83, 256, 256)):
     return seq
 
 
-def model3D_Residual(img=(83, 256, 256)):
+def model3D_Residual(img=(84, 256, 256)):
     with tf.name_scope('WMH'):
         seq = tg.Sequential()
         convStride = (1,1,1)
@@ -148,7 +148,7 @@ def model3D_Residual(img=(83, 256, 256)):
         seq.add(Softmax())
     return seq
     
-def model3D_ResidualDeeper(img=(83, 256, 256)):
+def model3D_ResidualDeeper(img=(84, 256, 256)):
     with tf.name_scope('WMH'):
         seq = tg.Sequential()
         convStride = (1,1,1)
@@ -197,7 +197,7 @@ def model3D_ResidualDeeper(img=(83, 256, 256)):
         seq.add(Softmax())
     return seq    
 
-def model_Inception_Resnet(img=(83, 256, 256)):
+def model_Inception_Resnet(img=(84, 256, 256)):
     with tf.name_scope('WMH'):
         seq = tg.Sequential()
         convStride = (1,1,1)
@@ -252,37 +252,77 @@ def model_Inception_Resnet(img=(83, 256, 256)):
         seq.add(Softmax())
     return seq
     
-    
-#def Residual_UNET(img=(83, 256, 256)):
-#    with tf.name_scope('WMH'):
-#        seq = tg.Sequential()
-#        convStride = (1,1,1)
-#        poolStride = (2,2,2)
-#        kSize3 = (3,3,3)
-#        kSize5 = (5,5,5)
-#        seq.add(Conv3D(input_channels=1, num_filters=16, kernel_size=kSize5, stride=convStride, padding='SAME'))        
-#        
-#        ResidualBlock = []
-#        ResidualBlock.append()
-#        
-#        
-#        graph =   []     
-#    
-#        
-#        x_dim = 50
-#        component_dim = 100
-#        batchsize = 32
-#        learning_rate = 0.01
-#        x_ph = tf.placeholder('float32', [None, x_dim])
-#        start = StartNode(input_vars=[x_ph])
-#        h1 = HiddenNode(prev=[start], layers=[Linear(x_dim, component_dim), Softmax()])
-#        e1 = EndNode(prev=[h1], input_merge_mode=Sum())
-#        #e3 = EndNode(prev=[h1, h2, h3], input_merge_mode=Sum())
-#        
-#        graph = Graph(start=[start], end=[e1, e2, e3])
-#        o1, o2, o3 = graph.train_fprop()
-#        o1_mse = tf.reduce_mean((y1_ph - o1)**2)
-#        o2_mse = tf.reduce_mean((y2_ph - o2)**2)
-#        
-#    return graph
-#        
+class Testing():
+    def __init__(self,input):
+        self.int = input
+    def _train_fprop(self, state_below):
+        print("testing"+str(self.int))
+        return state_below
+
+def Residual_UNET(input, img=(84, 256, 256)):
+    with tf.name_scope('WMH'):
+        convStride = (1,1,1)
+        poolStride = (2,2,2)
+        kSize3 = (3,3,3)
+        #kSize5 = (5,5,5)
+        
+        #x_dim = 50
+        #component_dim = 100
+        #batchsize = 32
+        #learning_rate = 0.01
+        #x_ph = tf.placeholder('float32', [None, x_dim])
+        #start = StartNode(input_vars=[x_ph])
+        #h1 = HiddenNode(prev=[start], layers=[Linear(x_dim, component_dim), Softmax()])
+        #e1 = EndNode(prev=[h1], input_merge_mode=Sum())
+        #e3 = EndNode(prev=[h1, h2, h3], input_merge_mode=Sum())
+        
+        start = StartNode(input_vars=[input])
+        
+        Layer01 = [Conv3D(input_channels=1, num_filters=8, kernel_size=kSize3, stride=convStride, padding='SAME') ]
+        
+        LayerPool = MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME')
+        
+        Layer02 = [LayerPool]
+        #Layer02.append(Testing(1))
+        Layer02.append(Conv3D(input_channels=8, num_filters=16, kernel_size=kSize3, stride=convStride, padding='SAME') )
+        #Layer02.append(Testing(2))        
+        Layer02.append(ResidualBlock3D(16,'L02'))
+        #Layer02.append(Testing(3))
+        layerSize1 = updateConvLayerSize(img,poolStride)  
+        
+        Layer03 = [LayerPool]
+        Layer03.append(Conv3D(input_channels=16, num_filters=32, kernel_size=kSize3, stride=convStride, padding='SAME') )
+        Layer03.append(ResidualBlock3D(32,'L03'))
+        #layerSize2 = updateConvLayerSize(layerSize1,poolStride)
+        Layer03.append(Conv3D_Tranpose1(input_channels=32, num_filters=16, output_shape=layerSize1, kernel_size=kSize3, stride=poolStride, padding='SAME') )
+        
+        #Layer04 = [Conv3D(input_channels=32, num_filters=64, kernel_size=kSize5, stride=convStride, padding='SAME')]
+        #Layer04.append(ResidualBlock3D(64,'L03'))
+        
+        conv8 = HiddenNode(prev=[start], layers=Layer01)
+        
+        resBlock16 = HiddenNode(prev=[conv8], layers=Layer02)
+
+        resBlock32_16 = HiddenNode(prev=[resBlock16], layers=Layer03)
+        residualLong16 = HiddenNode(prev=[resBlock32_16,resBlock16], input_merge_mode=Sum())
+        
+        Layer04 = [ResidualBlock3D(16,'L04')]
+        Layer04.append(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=img, kernel_size=kSize3, stride=poolStride, padding='SAME') )
+        
+        resBlock16_8 = HiddenNode(prev=[residualLong16], layers=Layer04)
+        residualLong8 = HiddenNode(prev=[resBlock16_8,conv8], input_merge_mode=Sum())
+        
+        Layer05 = [ResidualBlock3D(8,'L05')]
+        Layer05.append(Conv3D(input_channels=8, num_filters=2, kernel_size=kSize3, stride=convStride, padding='SAME') )
+        
+        resBlock8_2 = HiddenNode(prev=[residualLong8], layers=Layer05)
+        
+        endNode = EndNode(prev=[resBlock8_2], input_merge_mode=NoChange())
+        
+        graph = Graph(start=[start], end=[endNode])
+        #o1, o2, o3 = graph.train_fprop()
+        #o1_mse = tf.reduce_mean((y1_ph - o1)**2)
+        #o2_mse = tf.reduce_mean((y2_ph - o2)**2)
+        
+    return graph
+        
