@@ -102,6 +102,9 @@ if __name__ == '__main__':
         X_train, y_train = dataset.NextBatch3D(5,dataset='train')
         X_test, y_test = dataset.NextBatch3D(4,dataset='validation')
         
+        print(X_train.shape)
+        print(y_train.shape)        
+        
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
         
