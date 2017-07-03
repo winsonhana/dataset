@@ -314,6 +314,7 @@ def Residual_UNET(input, img=(84, 256, 256)):
         
         Layer05 = [ResidualBlock3D(8,'L05')]
         Layer05.append(Conv3D(input_channels=8, num_filters=2, kernel_size=kSize3, stride=convStride, padding='SAME') )
+        Layer05.append(Softmax())        
         
         resBlock8_2 = HiddenNode(prev=[residualLong8], layers=Layer05)
         
