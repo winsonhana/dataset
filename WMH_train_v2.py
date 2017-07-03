@@ -116,20 +116,6 @@ if __name__ == '__main__':
             ttl_examples = 0
             print('..training')
             for X_batch, y_batch in iter_train:
-#                angle = 18
-#                dataX_ = []
-#                for i in X_batch:
-#                    dataX_.append(i)
-#                    dataX_.append(RotateTopAxis(i,angle))
-#                    dataX_.append(RotateTopAxis(i,-angle))
-#                X_batch = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
-#                dataY_ = []  
-#                for i in y_batch:
-#                    dataY_.append(i)
-#                    dataY_.append(RotateTopAxis(i,angle))
-#                    dataY_.append(RotateTopAxis(i,-angle))
-#                y_batch = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
-                
                 feed_dict = {X_ph:X_batch, y_ph:y_batch}
                 _, train_cost = sess.run([optimizer,train_cost_sb] , feed_dict=feed_dict)              
                 ttl_train_cost += len(X_batch) * train_cost
