@@ -57,7 +57,8 @@ if __name__ == '__main__':
     ### CHANGE TO 2 CHANNELS
     train_cost_label =  (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,0]) )
     train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,1]) )
-    train_cost_sb = tf.reduce_mean([train_cost_label,train_cost_others])
+    #train_cost_sb = tf.reduce_mean([train_cost_label,train_cost_others])
+    train_cost_sb = train_cost_label
     valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) )
     valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,0]) )
     valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,1]) ) 
@@ -151,7 +152,6 @@ if __name__ == '__main__':
                 valid_cost, valid_accu, valid_0, valid_1, valid_2 = sess.run([test_cost_sb, test_accu_sb, valid_cost_background,
                                                                      valid_cost_label, valid_cost_others],
                                                                      feed_dict=feed_dict)
-                print('validated')
                 #mask_output = sess.run(y_test_sb, feed_dict=feed_dict)
                 ttl_valid_cost += len(X_batch) * valid_cost
                 ttl_valid_accu += len(X_batch) * valid_accu
