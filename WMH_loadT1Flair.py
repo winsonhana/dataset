@@ -115,29 +115,29 @@ class WMHdataset():
         dataFl_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i)))/maxValue for i in fullPathsFlair_]  
         #dataFl_ = [sitk.GetArrayFromImage(sitk.ReadImage(i))/maxValue for i in fullPathsFlair_]  
         #dataX_ = np.stack((dataT1_,dataFl_),axis=-1) # merge into 2 channels
-#        angle = 18        
-#        if dataset == 'train':
-#            dataX_ = []
-#            for i in dataFl_:
-#                dataX_.append(i)
-#                dataX_.append(self.RotateTopAxis(i,angle))
-#                dataX_.append(self.RotateTopAxis(i,-angle))
-#            dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
-#        else:
-#            dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataFl_])
-        dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataFl_])
+        angle = 18        
+        if dataset == 'train':
+            dataX_ = []
+            for i in dataFl_:
+                dataX_.append(i)
+                dataX_.append(self.RotateTopAxis(i,angle))
+                dataX_.append(self.RotateTopAxis(i,-angle))
+            dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataX_])
+        else:
+            dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataFl_])
+        #dataX_ = np.array([i.reshape(i.shape+(1,)) for i in dataFl_])
         dataLabel_ = [self.padding(sitk.GetArrayFromImage(sitk.ReadImage(i))) for i in fullPathsWMH_]
-#        dataY_ = []
-#        if dataset == 'train':
-#            dataY_ = []  
-#            for i in dataLabel_:
-#                dataY_.append(i)
-#                dataY_.append(self.RotateTopAxis(i,angle))
-#                dataY_.append(self.RotateTopAxis(i,-angle))
-#            dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
-#        else:
-#            dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataLabel_])
-        dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataLabel_])
+        dataY_ = []
+        if dataset == 'train':
+            dataY_ = []  
+            for i in dataLabel_:
+                dataY_.append(i)
+                dataY_.append(self.RotateTopAxis(i,angle))
+                dataY_.append(self.RotateTopAxis(i,-angle))
+            dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataY_])
+        else:
+            dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataLabel_])
+        #dataY_ = np.array([i.reshape(i.shape+(1,)) for i in dataLabel_])
         print('retrieved rawdata from drive')
         return dataX_, dataY_
 
