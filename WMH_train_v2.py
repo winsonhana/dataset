@@ -76,7 +76,8 @@ if __name__ == '__main__':
     
     # CHANGE TO 2 CHANNELS    
     test_accu_sb = iou(y_ph_cat[:,:,:,:,1:], y_test_sb, threshold=0.5)         # Works for Softmax filter2
-
+    
+    
     print('DONE')    
     
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(train_cost_sb)
