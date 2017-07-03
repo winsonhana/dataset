@@ -20,9 +20,9 @@ from scipy.ndimage.interpolation import rotate
 
 if __name__ == '__main__':
     
-    #print(sys.argv[0]) # input from terminal
-    #print(sys.argv[1]) # input from terminal
-    #print(sys.argv[2]) # input from terminal
+    print(sys.argv[0]) # input from terminal
+    print(sys.argv[1]) # input from terminal
+    print(sys.argv[2]) # input from terminal
     
     learning_rate = 0.001
     
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     
     print('TRAINED')
     #train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
-    print(y_train_sb)
+
     ### CHANGE TO 2 CHANNELS
     train_cost_label =  (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,0]) )
     train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,1]) )
@@ -93,7 +93,7 @@ if __name__ == '__main__':
         
         dataset.InitDataset(splitRatio=0.8, shuffle=True)  # Take everything 80% Train 20% Validation
         
-        batchsize = 2  # size=3
+        batchsize = 6  # size=3
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
