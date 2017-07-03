@@ -55,6 +55,7 @@ if __name__ == '__main__':
     #y_train_sb = (seq.train_fprop(X_ph))  
     #y_test_sb = (seq.test_fprop(X_ph)) 
     y_train_sb = (seq.train_fprop())[0][0]
+    print('TESTING')
     y_test_sb = (seq.test_fprop())[0][0]
     
     print('TRAINED')
@@ -84,7 +85,7 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     
     
-    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.97)
+    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.98)
     with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
@@ -93,7 +94,7 @@ if __name__ == '__main__':
         
         dataset.InitDataset(splitRatio=0.8, shuffle=True)  # Take everything 80% Train 20% Validation
         
-        batchsize = 6  # size=3
+        batchsize = 3  # size=3
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0

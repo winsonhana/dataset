@@ -256,7 +256,7 @@ class Testing():
     def __init__(self,input):
         self.int = input
     def _train_fprop(self, state_below):
-        print("testing"+str(self.int))
+        print("testing "+str(self.int))
         return state_below
     def _test_fprop(self, state_below):
         return self._train_fprop(state_below)
@@ -301,6 +301,7 @@ def Residual_UNET(input, img=(84, 256, 256)):
         #layerSize2 = updateConvLayerSize(layerSize1,poolStride)
         Layer03.append(Conv3D_Tranpose1(input_channels=32, num_filters=16, output_shape=layerSize1, kernel_size=kSize3, stride=poolStride, padding='SAME') )
         Layer03.append(RELU())  
+        Layer03.append(Testing(3))
         
         #Layer04 = [Conv3D(input_channels=32, num_filters=64, kernel_size=kSize5, stride=convStride, padding='SAME')]
         #Layer04.append(ResidualBlock3D(64,'L03'))
@@ -312,6 +313,7 @@ def Residual_UNET(input, img=(84, 256, 256)):
         resBlock32_16 = HiddenNode(prev=[resBlock16], layers=Layer03)
         residualLong16 = HiddenNode(prev=[resBlock32_16,resBlock16], input_merge_mode=Sum())
         
+
         Layer04 = [ResidualBlock3D(16,'L04')]
         Layer04.append(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=img, kernel_size=kSize3, stride=poolStride, padding='SAME') )
         Layer04.append(RELU())
