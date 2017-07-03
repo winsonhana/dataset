@@ -82,10 +82,10 @@ def model3D_2(img=(83, 256, 256)):
         #layerSize2 = updateConvLayerSize(layerSize1,convStride)
         seq.add(RELU())
         ## Extra Conv
-        seq.add(Conv3D(input_channels=16, num_filters=32, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
+        seq.add(Conv3D(input_channels=16, num_filters=16, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(TFBatchNormalization(name='b3'))
         
-        seq.add(Conv3D_Tranpose1(input_channels=32, num_filters=16, output_shape=layerSize1, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
+        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=16, output_shape=layerSize1, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
         seq.add(TFBatchNormalization(name='b4'))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=img, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
@@ -174,7 +174,7 @@ def model3D_ResidualDeeper(img=(83, 256, 256)):
         seq.add(Conv3D(input_channels=16, num_filters=32, kernel_size=kernelSize, stride=convStride, padding='SAME'))
         #seq.add(TFBatchNormalization(name='b2'))
         seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
-        layerSize3 = updateConvLayerSize(layerSize2,poolStride)
+        #layerSize3 = updateConvLayerSize(layerSize2,poolStride)
         seq.add(RELU())
         
         seq.add(Residual3D(input=32,num_blocks=3,kernel=kernelSize))
@@ -225,7 +225,7 @@ def model_Inception_Resnet(img=(83, 256, 256)):
         seq.add(Conv3D(input_channels=16, num_filters=32, kernel_size=kernelSize, stride=convStride, padding='SAME'))
         #seq.add(TFBatchNormalization(name='b3'))
         seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
-        layerSize3 = updateConvLayerSize(layerSize2,poolStride)
+        #layerSize3 = updateConvLayerSize(layerSize2,poolStride)
         seq.add(RELU())        
         
         seq.add(InceptionResnet_3D(32, type='v1_out16'))    
@@ -253,34 +253,34 @@ def model_Inception_Resnet(img=(83, 256, 256)):
     return seq
     
     
-#def VNet(img=(83, 256, 256)):
-#    with tf.name_scope('WMH'):
-#        seq = tg.Sequential()
-#        convStride = (1,1,1)
-#        poolStride = (2,2,2)
-#        kSize3 = (3,3,3)
-#        kSize5 = (5,5,5)
-#        seq.add(Conv3D(input_channels=1, num_filters=16, kernel_size=kSize5, stride=convStride, padding='SAME'))        
-#        
-#        
-#        
-#        graph =         
-#    return graph
-#        
-#        x_dim = 50
-#        component_dim = 100
-#        batchsize = 32
-#        learning_rate = 0.01
-#        x_ph = tf.placeholder('float32', [None, x_dim])
-#        start = StartNode(input_vars=[x_ph])
-#        h1 = HiddenNode(prev=[start], layers=[Linear(x_dim, component_dim), Softmax()])
-#        e1 = EndNode(prev=[h1], input_merge_mode=Sum())
-#        #e3 = EndNode(prev=[h1, h2, h3], input_merge_mode=Sum())
-#        
-#        graph = Graph(start=[start], end=[e1, e2, e3])
-#        o1, o2, o3 = graph.train_fprop()
-#        o1_mse = tf.reduce_mean((y1_ph - o1)**2)
-#        o2_mse = tf.reduce_mean((y2_ph - o2)**2)
-#        
-#        
-#        
+def Residual_UNET(img=(83, 256, 256)):
+    with tf.name_scope('WMH'):
+        seq = tg.Sequential()
+        convStride = (1,1,1)
+        poolStride = (2,2,2)
+        kSize3 = (3,3,3)
+        kSize5 = (5,5,5)
+        seq.add(Conv3D(input_channels=1, num_filters=16, kernel_size=kSize5, stride=convStride, padding='SAME'))        
+        
+        
+        
+        graph =         
+    return graph
+        
+        x_dim = 50
+        component_dim = 100
+        batchsize = 32
+        learning_rate = 0.01
+        x_ph = tf.placeholder('float32', [None, x_dim])
+        start = StartNode(input_vars=[x_ph])
+        h1 = HiddenNode(prev=[start], layers=[Linear(x_dim, component_dim), Softmax()])
+        e1 = EndNode(prev=[h1], input_merge_mode=Sum())
+        #e3 = EndNode(prev=[h1, h2, h3], input_merge_mode=Sum())
+        
+        graph = Graph(start=[start], end=[e1, e2, e3])
+        o1, o2, o3 = graph.train_fprop()
+        o1_mse = tf.reduce_mean((y1_ph - o1)**2)
+        o2_mse = tf.reduce_mean((y2_ph - o2)**2)
+        
+        
+        
