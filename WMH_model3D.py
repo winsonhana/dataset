@@ -83,8 +83,8 @@ def model3D_2(img=(83, 256, 256)):
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=2, output_shape=img, kernel_size=(3,3,3), stride=(2,2,2), padding='SAME'))
         ##        
-        seq.add(RELU())        
-        seq.add(Conv3D(input_channels=2, num_filters=2, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
+        #seq.add(RELU())        
+        #seq.add(Conv3D(input_channels=2, num_filters=2, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
 #        seq.add(RELU())        
 #        seq.add(Conv3D(input_channels=3, num_filters=3, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
 #        seq.add(RELU())        
@@ -241,21 +241,34 @@ def model_Inception_Resnet(img=(83, 256, 256)):
     return seq
     
     
-def VNet(img=(83, 256, 256)):
-    with tf.name_scope('WMH'):
-        seq = tg.Sequential()
-        convStride = (1,1,1)
-        poolStride = (2,2,2)
-        kSize3 = (3,3,3)
-        kSize5 = (5,5,5)
-        seq.add(Conv3D(input_channels=1, num_filters=16, kernel_size=kSize5, stride=convStride, padding='SAME'))        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+#def VNet(img=(83, 256, 256)):
+#    with tf.name_scope('WMH'):
+#        seq = tg.Sequential()
+#        convStride = (1,1,1)
+#        poolStride = (2,2,2)
+#        kSize3 = (3,3,3)
+#        kSize5 = (5,5,5)
+#        seq.add(Conv3D(input_channels=1, num_filters=16, kernel_size=kSize5, stride=convStride, padding='SAME'))        
+#        
+#        
+#        
+#        graph =         
+#    return graph
+#        
+#        x_dim = 50
+#        component_dim = 100
+#        batchsize = 32
+#        learning_rate = 0.01
+#        x_ph = tf.placeholder('float32', [None, x_dim])
+#        start = StartNode(input_vars=[x_ph])
+#        h1 = HiddenNode(prev=[start], layers=[Linear(x_dim, component_dim), Softmax()])
+#        e1 = EndNode(prev=[h1], input_merge_mode=Sum())
+#        #e3 = EndNode(prev=[h1, h2, h3], input_merge_mode=Sum())
+#        
+#        graph = Graph(start=[start], end=[e1, e2, e3])
+#        o1, o2, o3 = graph.train_fprop()
+#        o1_mse = tf.reduce_mean((y1_ph - o1)**2)
+#        o2_mse = tf.reduce_mean((y2_ph - o2)**2)
+#        
+#        
+#        
