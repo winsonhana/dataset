@@ -99,14 +99,14 @@ if __name__ == '__main__':
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        X_train, y_train = dataset.NextBatch3D(48,dataset='train')
-        X_test, y_test = dataset.NextBatch3D(12,dataset='validation')
+        X_train, y_train = dataset.NextBatch3D(10,dataset='train')
+        X_test, y_test = dataset.NextBatch3D(4,dataset='validation')
         
         iter_train = tg.SequentialIterator(X_train, y_train, batchsize=batchsize)
         iter_test = tg.SequentialIterator(X_test, y_test, batchsize=batchsize)
         
-        def RotateTopAxis(self,data,angle):
-            return rotate(data,angle, axes=(1,2) , reshape=False )        
+#        def RotateTopAxis(self,data,angle):
+#            return rotate(data,angle, axes=(1,2) , reshape=False )        
         
         best_valid_accu = 0
         for epoch in range(max_epoch):
