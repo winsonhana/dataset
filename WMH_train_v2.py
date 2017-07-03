@@ -52,11 +52,11 @@ if __name__ == '__main__':
     #y_test_sb = (seq.test_fprop(X_ph))[:,:,:,:,1]       # works! maybe new variable
     print('TRAINING')
     # for one hot
-    #y_train_sb = (seq.train_fprop(X_ph))  
-    #y_test_sb = (seq.test_fprop(X_ph)) 
-    y_train_sb = (seq.train_fprop())[0][0]
+    y_train_sb = (seq.train_fprop(X_ph))  
+    #y_train_sb = (seq.train_fprop())[0][0]
     print('TESTING')
-    y_test_sb = (seq.test_fprop())[0][0]
+    y_test_sb = (seq.test_fprop(X_ph))
+    #y_test_sb = (seq.test_fprop())[0][0]
     
     print('TRAINED')
     #train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
