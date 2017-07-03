@@ -83,17 +83,17 @@ def model3D_2(img=(83, 256, 256)):
         seq.add(RELU())
         ## Extra Conv
         seq.add(Conv3D(input_channels=16, num_filters=16, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
-        seq.add(TFBatchNormalization(name='b3'))
+        #seq.add(TFBatchNormalization(name='b3'))
         
-        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=16, output_shape=layerSize1, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
+        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
         seq.add(TFBatchNormalization(name='b4'))
         seq.add(RELU())
-        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=img, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
-        seq.add(TFBatchNormalization(name='b5'))
+        seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=2, output_shape=img, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
+        #seq.add(TFBatchNormalization(name='b5'))
         seq.add(RELU())
         
-        seq.add(Conv3D(input_channels=8, num_filters=2, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
-        
+        seq.add(Conv3D(input_channels=2, num_filters=2, kernel_size=(1,1,1), stride=convStride, padding='SAME'))
+        ##
         ##        
         #seq.add(RELU())        
         #seq.add(Conv3D(input_channels=2, num_filters=2, kernel_size=(3,3,3), stride=convStride, padding='SAME'))        
@@ -283,4 +283,4 @@ def model_Inception_Resnet(img=(83, 256, 256)):
 #        o2_mse = tf.reduce_mean((y2_ph - o2)**2)
 #        
 #        
-        
+#        
