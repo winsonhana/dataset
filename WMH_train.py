@@ -28,13 +28,13 @@ if __name__ == '__main__':
                          percent_decrease=0)
 
 
-    seq = WMH_model3D.model3D_2()
+    seq = WMH_model3D.model3D()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(split=1.0)         # Take everything 100%
 
-    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 2])
-    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 3])
+    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1]) # change from 2 to 1
+    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1]) # change from 3 to 1
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
     
@@ -72,7 +72,9 @@ if __name__ == '__main__':
         print("INITIALIZE SESSION")
 
         
-        dataX, dataY = dataset.NextBatch3D(60) # Take everything
+        dataX, dataY = dataset.NextBatch3D(10) # Take everything
+        batchsize = 2
+        split = 6
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         dataY[dataY ==2] = 0
