@@ -78,14 +78,14 @@ def model3D_2(img=(84, 256, 256)):
         seq.add(TFBatchNormalization(name='b2'))
         
         ## Extra MaxPool
-        seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
+        #seq.add(MaxPool3D(poolsize=(2,2,2), stride=poolStride, padding='SAME'))
         #layerSize2 = updateConvLayerSize(layerSize1,convStride)
-        seq.add(RELU())
+        #seq.add(RELU())
         ## Extra Conv
-        seq.add(Conv3D(input_channels=16, num_filters=16, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
-        seq.add(TFBatchNormalization(name='b3'))
+        #seq.add(Conv3D(input_channels=16, num_filters=16, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
+        #seq.add(TFBatchNormalization(name='b3'))
         
-        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
+        seq.add(Conv3D_Tranpose1(input_channels=16, num_filters=8, output_shape=layerSize1, kernel_size=(3,3,3), stride=convStride, padding='SAME'))
         seq.add(TFBatchNormalization(name='b4'))
         seq.add(RELU())
         seq.add(Conv3D_Tranpose1(input_channels=8, num_filters=2, output_shape=img, kernel_size=(3,3,3), stride=poolStride, padding='SAME'))
