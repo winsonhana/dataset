@@ -99,7 +99,7 @@ if __name__ == '__main__':
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        X_train, y_train = dataset.NextBatch3D(5,dataset='train')
+        X_train, y_train = dataset.NextBatch3D(4,dataset='train')
         X_test, y_test = dataset.NextBatch3D(4,dataset='validation')
         
         print(X_train.shape)
