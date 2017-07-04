@@ -33,8 +33,8 @@ if __name__ == '__main__':
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
     dataset.InitDataset(splitRatio=1.0)         # Take everything 100%
 
-    X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1]) # change from 2 to 1
-    y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1]) # change from 3 to 1
+    X_ph = tf.placeholder('float32', [None, 84, 256, 256, 1]) # change from 2 to 1
+    y_ph = tf.placeholder('float32', [None, 84, 256, 256, 1]) # change from 3 to 1
     #X_ph = tf.placeholder('float32', [None, None, None, None, 1])
     #y_ph = tf.placeholder('float32', [None, None, None, None, 1])
     
