@@ -8,7 +8,8 @@ import sys
 import tensorgraph as tg
 import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
-from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
+#from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
+from WMH_loadT1Flair import WMHdataset
 from conv3D import Conv3D_Tranpose1, MaxPool3D
 #import matplotlib.pyplot as plt
 import WMH_model3D # all model
