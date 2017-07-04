@@ -51,7 +51,7 @@ if __name__ == '__main__':
 #    tf.metrics.mean_iou
 #    tf.contrib.metrics.streaming_mean_iou
 
-    train_cost_sb = 1 - smooth_iou(y_ph, y_train_sb)
+    train_cost_sb = 1 - smooth_iou(y_ph, y_train_sb[:,:,:,:,1])
 
     #test_cost_sb = tf.reduce_mean((y_ph - y_test_sb)**2)
     test_cost_sb = entropy(y_ph, y_test_sb)
