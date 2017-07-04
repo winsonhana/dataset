@@ -31,7 +31,7 @@ if __name__ == '__main__':
     seq = WMH_model3D.model3D()
     dataset = WMHdataset('./WMH')
     assert dataset.AbleToRetrieveData(), 'not able to locate the directory of dataset'
-    dataset.InitDataset(split=1.0)         # Take everything 100%
+    dataset.InitDataset(splitRatio=1.0)         # Take everything 100%
 
     X_ph = tf.placeholder('float32', [None, 83, 256, 256, 1]) # change from 2 to 1
     y_ph = tf.placeholder('float32', [None, 83, 256, 256, 1]) # change from 3 to 1
