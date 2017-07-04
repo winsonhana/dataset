@@ -10,19 +10,19 @@ import tensorflow as tf
 from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 #from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
 from WMH_loadT1Flair import WMHdataset # 3D MRI Scanned Dataset
-from conv3D import Conv3D_Tranpose1, MaxPool3D
+#from conv3D import Conv3D_Tranpose1, MaxPool3D
 #import matplotlib.pyplot as plt
-import WMH_model3D # all model
+#import WMH_model3D # all model
 from scipy.misc import imsave
 import numpy as np
 from scipy.ndimage.interpolation import rotate
-
+import dummy
 
 if __name__ == '__main__':
     
-    print(sys.argv[0]) # input from terminal
-    print(sys.argv[1]) # input from terminal
-    print(sys.argv[2]) # input from terminal
+    #print(sys.argv[0]) # input from terminal
+    #print(sys.argv[1]) # input from terminal
+    #print(sys.argv[2]) # input from terminal
     
     learning_rate = 0.001
     
@@ -44,8 +44,9 @@ if __name__ == '__main__':
     y_ph_cat = tf.one_hot(y_ph,3) # --> unstack into 3 categorical Tensor [?, 84, 256, 256, 1, 3]
     y_ph_cat = y_ph_cat[:,:,:,:,0,:]
     #y_ph_cat = tf.reduce_max(y_ph_cat, 4)   # --> collapse the extra 4th redundant dimension
-    
-    seq = WMH_model3D.model3D_2()  
+    print('Init Model')
+#    seq = WMH_model3D.dummy()  
+    seq = dummy.dummy()    
     
     # works for Label01 filter2
     #y_train_sb = (seq.train_fprop(X_ph))[:,:,:,:,1]   # works! but change the reshape
@@ -59,17 +60,17 @@ if __name__ == '__main__':
     #y_test_sb = (seq.test_fprop())[0][0]
     
     print('TRAINED')
-    #train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )*0
+    #train_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_train_sb[:,:,:,:,0]) )
 
     ### CHANGE TO 2 CHANNELS
-    train_cost_label =  (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,0]) ) * 0.7
-    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,1]) ) * 0.3
-    train_cost_sb = tf.reduce_sum([train_cost_label,train_cost_others])
+    train_cost_label =  (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_train_sb[:,:,:,:,0]) ) 
+    train_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_train_sb[:,:,:,:,1]) ) 
+    train_cost_sb = tf.reduce_sum([train_cost_label * 0.7,train_cost_others * 0.3])
     #train_cost_sb = train_cost_label
     valid_cost_background = (1 - smooth_iou(y_ph_cat[:,:,:,:,0] , y_test_sb[:,:,:,:,0]) ) # can ignore 
-    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,0]) ) * 0.7
-    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,1]) ) * 0.3
-    test_cost_sb = tf.reduce_sum([valid_cost_label,valid_cost_others])  
+    valid_cost_label = (1 - smooth_iou(y_ph_cat[:,:,:,:,1] , y_test_sb[:,:,:,:,0]) ) 
+    valid_cost_others = (1 - smooth_iou(y_ph_cat[:,:,:,:,2] , y_test_sb[:,:,:,:,1]) )
+    test_cost_sb = tf.reduce_sum([valid_cost_label * 0.7,valid_cost_others * 0.3])  
     
     
     # ACCURACY
@@ -85,8 +86,9 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     
     
-    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
-    with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
+    #gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
+    #with tf.Session(config = tf.ConfigProto(gpu_options = gpu_options)) as sess:
+    with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         print("INITIALIZE SESSION")
@@ -94,13 +96,13 @@ if __name__ == '__main__':
         
         dataset.InitDataset(splitRatio=0.8, shuffle=True)  # Take everything 80% Train 20% Validation
         
-        batchsize = 6  # size=3
+        batchsize = 1  # size=3
         #######
         # Just to train 0 & 1, ignore 2=Other Pathology. Assign 2-->0
         # dataY[dataY ==2] = 0
         #######
-        X_train, y_train = dataset.NextBatch3D(48,dataset='train')
-        X_test, y_test = dataset.NextBatch3D(12,dataset='validation')
+        X_train, y_train = dataset.NextBatch3D(2,dataset='train')
+        X_test, y_test = dataset.NextBatch3D(2,dataset='validation')
         
         print(X_train.shape)
         print(y_train.shape)        
@@ -172,9 +174,10 @@ if __name__ == '__main__':
                 print('training done!')
                 break
         
-        #save_path = saver.save(sess, "trained_model.ckpt")    
-        #print("Model saved in file: %s" % save_path)
+        save_path = saver.save(sess, "./trainModel/model1/trained_model.ckpt")    
+        print("Model saved in file: %s" % save_path)
         
+        """
         ### 1ST PREDICTION
         predictIndex = sys.argv[1] # input from terminal
         print('Prediction 3D Scan of No #'+predictIndex)        
@@ -224,4 +227,4 @@ if __name__ == '__main__':
         np.save('X_test_'+predictIndex+'.npy',X_test[intIndex])
         np.save('y_test_'+predictIndex+'.npy',y_test[intIndex])
         np.save('mask_output_'+predictIndex+'.npy',mask_output[0])        
-        
+        """

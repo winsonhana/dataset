@@ -16,9 +16,8 @@ from tensorgraph.graph import Graph
 from tensorgraph.layers.merge import Concat, Mean, Sum, NoChange
 import tensorgraph as tg
 import tensorflow as tf
-from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
+#from tensorgraph.cost import entropy, accuracy, iou, smooth_iou
 from math import ceil
-from WMH_loadData import WMHdataset # 3D MRI Scanned Dataset
 from conv3D import Conv3D_Tranpose1, MaxPool3D, SoftMaxMultiDim, Residual3D, \
 InceptionResnet_3D, ResidualBlock3D
 
@@ -334,4 +333,3 @@ def Residual_UNET(input, img=(84, 256, 256)):
         #o2_mse = tf.reduce_mean((y2_ph - o2)**2)
         
     return graph
-        

@@ -13,8 +13,6 @@ from scipy.ndimage.interpolation import rotate
 
 
 
-
-
 ####### Iterating 3D Scanning Data ########
 
 class WMHdataset():
@@ -107,7 +105,7 @@ class WMHdataset():
         fullPathsFlair_ = [os.path.join(self.filepath,i,subfolder,'FLAIR.nii.gz') for i in batchPath_]
         #fullPathsT1_ = [os.path.join(self.filepath,i,subfolder,'T1.nii.gz') for i in batchPath_]
         fullPathsWMH_ = [os.path.join(self.filepath,i,'wmh.nii.gz') for i in batchPath_]
-        #
+        
         print('fetching '+dataset+' rawdata from drive')
         # maxValue = 3180.0
         maxValue = 1.0

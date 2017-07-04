@@ -73,7 +73,7 @@ if __name__ == '__main__':
         print("INITIALIZE SESSION")
 
         
-        dataX, dataY = dataset.NextBatch3D(10) # Take everything
+        dataX, dataY = dataset.NextBatch3D(4) # Take everything
         batchsize = 2
         split = 6
         #######
